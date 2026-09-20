@@ -1,34 +1,38 @@
 # GLUE-LP
 
-Predicao de ligacoes sem a aresta-alvo no message passing.
+Protocolo de predicao de ligacoes em que a aresta-alvo **nao** entra no message passing.
 
-## Estrutura
+## Ler o artigo
+- Texto completo: [docs/ARTIGO.md](docs/ARTIGO.md)
+- Tabela de AUC: [experiments/RESULTADOS.md](experiments/RESULTADOS.md)
+- Log GAT/Pubmed: [experiments/wave3_log.txt](experiments/wave3_log.txt)
 
+## Layout
 ```
-MANUSCRITO.md              texto do artigo
-experiments/RESULTADOS.md  tabela de AUC medida
-src/glue_lp/               pacote Python
-  protocol.py              invariante e split temporal/aleatorio
-  splits.py                holdout Cora e split indutivo
-  data_citation.py         Cora / Citeseer LINQS
-  torch_gcn.py             GCN denso (serie 1)
-  torch_models.py          GCN esparso, SAGE, GAT
-  metrics.py               AUC Mann-Whitney, AP, Hits, MRR
-  heuristics.py            CN, Adamic-Adar, PA
-  graph.py                 tech tree de 12 nos
-  run.py                   experimento sintetico
-scripts/                   runners E1, serie 2, onda 3
-tests/                     pytest da invariante
-requirements.txt
+docs/ARTIGO.md          manuscrito (do PDF/DOCX)
+src/glue_lp/            pacote
+  protocol.py           invariante
+  splits.py             holdout, indutivo, hard, degree-match
+  data_citation.py      Cora, Citeseer, Pubmed
+  torch_gcn.py          GCN denso serie 1
+  torch_models.py       GCN esparso, SAGE, GAT
+  metrics.py            AUC Mann-Whitney
+  heuristics.py         CN, AA, PA
+  experiments.py        celula transdutiva
+  graph.py / run.py     tech tree n=12
+scripts/run_e1_e4.py    serie 1
+scripts/run_extended.py serie 2 (este commit: runner real)
+tests/                  invariante + AUC + GAT shape
 ```
 
-## Resultados
-Ver experiments/RESULTADOS.md
-
-## Rodar testes
-```
+## Instalar e testar
+```bash
 pip install -r requirements.txt
 PYTHONPATH=src python3 -m pytest -q
 ```
 
-PDF/DOCX/PNG e tarballs LINQS nao entram nesta API (binario).
+Cora/Citeseer/Pubmed LINQS vao em `data/` (nao versionados aqui).
+
+## Resultado principal
+Citeseer GCN: leaky +0.100 AUC (t=5.77). GAT Cora: +0.094 (t=20.4).
+Cora GCN com early stopping: t=2.61, uma seed inverte.
