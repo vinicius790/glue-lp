@@ -1,0 +1,20 @@
+cora 2708 5278
+gat 0 valid 0.7939 ep 20
+gat 0 leaky 0.8955 ep 11
+degmatch 0 0.6372
+gat 1 valid 0.7834 ep 26
+gat 1 leaky 0.8741 ep 11
+degmatch 1 0.6385
+gat 2 valid 0.7391 ep 19
+gat 2 leaky 0.8413 ep 11
+degmatch 2 0.5949
+gat 3 valid 0.7924 ep 22
+gat 3 leaky 0.8895 ep 11
+degmatch 3 0.6247
+gat 4 valid 0.8018 ep 12
+gat 4 leaky 0.8792 ep 11
+degmatch 4 0.5609
+pubmed 19717 44324 500
+pubmed 0 valid 0.8849 leaky 0.9107
+pubmed 1 valid 0.8848 leaky 0.925
+pubmed 2 valid 0.8894 leaky 0.927
