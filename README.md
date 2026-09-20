@@ -1,7 +1,14 @@
 # GLUE-LP
 
-Artigo de predicao de ligacoes sem leakage.
+Codigo do artigo (Python) + manuscrito em texto.
 
-Baixar ZIP: https://github.com/vinicius790/glue-lp/archive/refs/heads/main.zip
+## Pastas
+- `MANUSCRITO.md` — texto do artigo
+- `src/glue_lp/` — protocolo, metricas, splits, loaders Cora/Citeseer, heuristica, stats
+- `tests/` — pytest
+- `requirements.txt` — numpy, torch, pytest
 
-Texto do artigo: [MANUSCRITO.md](MANUSCRITO.md)
+## O que nao sobe nesta API
+PDF com figuras, PNG, DOCX, tarball LINQS, pesos do GCN.
+
+Atualize a pagina (F5). Deve aparecer a pasta `src`.
