@@ -1,16 +1,35 @@
 from __future__ import annotations
 import math
 import numpy as np
+from .splits import build_adj
 
-def scores_cn(adj, pairs):
-    return np.asarray([float(len(adj[int(u)] & adj[int(v)])) for u, v in pairs])
+def _score_pairs(n, mp, pairs, kind):
+    adj = build_adj(n, mp)
+    deg = [len(s) for s in adj]
+    out = np.zeros(len(pairs), dtype=np.float64)
+    for i, (u, v) in enumerate(pairs):
+        u, v = int(u), int(v)
+        a, b = adj[u], adj[v]
+        small, large = (a, b) if len(a) <= len(b) else (b, a)
+        inter = [x for x in small if x in large]
+        if kind == "cn":
+            out[i] = float(len(inter))
+        elif kind == "aa":
+            s = 0.0
+            for x in inter:
+                s += 1.0 / math.log(max(deg[x], 2))
+            out[i] = s
+        elif kind == "pa":
+            out[i] = float(deg[u] * deg[v])
+        else:
+            raise ValueError(kind)
+    return out
 
-def scores_aa(adj, deg, pairs):
-    out = []
-    for u, v in pairs:
-        inter = adj[int(u)] & adj[int(v)]
-        out.append(sum(1.0 / math.log(max(deg[x], 2)) for x in inter))
-    return np.asarray(out)
+def scores_cn(n, mp, pairs):
+    return _score_pairs(n, mp, pairs, "cn")
 
-def scores_pa(deg, pairs):
-    return np.asarray([float(deg[int(u)] * deg[int(v)]) for u, v in pairs])
+def scores_aa(n, mp, pairs):
+    return _score_pairs(n, mp, pairs, "aa")
+
+def scores_pa(n, mp, pairs):
+    return _score_pairs(n, mp, pairs, "pa")

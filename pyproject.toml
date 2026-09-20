@@ -1,0 +1,12 @@
+[project]
+name = "glue-lp"
+version = "0.1.0"
+description = "Graph Link-evaluation Under Exclusion"
+requires-python = ">=3.11"
+dependencies = ["numpy>=1.26"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
