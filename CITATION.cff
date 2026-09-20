@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+title: "GLUE-LP: Graph Link-evaluation Under Exclusion"
+message: "Cite o manuscrito e a versao do artefato."
+type: software
+version: 0.1.0
+license: MIT
+keywords:
+  - graph neural networks
+  - link prediction
+  - evaluation
+  - leakage

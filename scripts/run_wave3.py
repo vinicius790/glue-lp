@@ -1,2 +1,3 @@
 #!/usr/bin/env python3
-print("Onda 3: GAT Cora + Pubmed GCN esparso + degree-matched negatives.")
+"""Onda 3 — GAT Cora, matching de grau, Pubmed."""
+print("Onda 3: train_encoder kind=gat; load_pubmed se data/Pubmed-Diabetes existir")
