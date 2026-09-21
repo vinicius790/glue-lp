@@ -1,0 +1,6 @@
+numpy>=1.26
+torch>=2.1
+matplotlib>=3.8
+pytest>=8
+ruff>=0.6
+python-docx>=1.1
