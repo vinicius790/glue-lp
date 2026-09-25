@@ -1,0 +1,98 @@
+cora 2708 5278 citeseer 3312 4536
+cora-gcn 0 valid 0.7033 ep 13
+cora-gcn 0 leaky 0.8145 ep 13
+cora-sage 0 0.5797
+cora-gcn 1 valid 0.743 ep 22
+cora-gcn 1 leaky 0.7919 ep 13
+cora-sage 1 0.5535
+cora-gcn 2 valid 0.7103 ep 34
+cora-gcn 2 leaky 0.7392 ep 18
+cora-sage 2 0.6178
+cora-gcn 3 valid 0.7477 ep 54
+cora-gcn 3 leaky 0.8334 ep 13
+cora-sage 3 0.5707
+cora-gcn 4 valid 0.7352 ep 26
+cora-gcn 4 leaky 0.7294 ep 19
+cora-sage 4 0.564
+citeseer-gcn 0 valid 0.7108
+citeseer-gcn 0 leaky 0.8126
+citeseer-gcn 1 valid 0.763
+citeseer-gcn 1 leaky 0.7988
+citeseer-gcn 2 valid 0.7632
+citeseer-gcn 2 leaky 0.8678
+citeseer-gcn 3 valid 0.7238
+citeseer-gcn 3 leaky 0.8616
+citeseer-gcn 4 valid 0.7025
+citeseer-gcn 4 leaky 0.8238
+WROTE /home/workdir/artifacts/glue-lp/experiments/extended_gcn_sage.json 90.0
+{
+  "cora_gcn_valid": {
+    "mean": 0.7279030997843222,
+    "std": 0.01996868934278447,
+    "values": [
+      0.703257492015598,
+      0.7430192741845468,
+      0.710253520518203,
+      0.747746904356405,
+      0.735238307846858
+    ]
+  },
+  "cora_gcn_leaky": {
+    "mean": 0.7816821433843782,
+    "std": 0.045805083335845376,
+    "values": [
+      0.8144954253966996,
+      0.7918798541023804,
+      0.7392278084031556,
+      0.8334095467164034,
+      0.7293980823032524
+    ]
+  },
+  "citeseer_gcn_valid": {
+    "mean": 0.7326676705212734,
+    "std": 0.028821866299631443,
+    "values": [
+      0.7108070308807118,
+      0.7630220896744295,
+      0.7632365052215059,
+      0.723769425317603,
+      0.7025033015121169
+    ]
+  },
+  "citeseer_gcn_leaky": {
+    "mean": 0.8329108372439805,
+    "std": 0.030421462119431322,
+    "values": [
+      0.812581319532769,
+      0.798771009068803,
+      0.867822561388633,
+      0.86157039895911,
+      0.8238088972705876
+    ]
+  },
+  "cora_sage_valid": {
+    "mean": 0.5771176218543976,
+    "std": 0.02468052160985497,
+    "values": [
+      0.5796585880480613,
+      0.5534675889086124,
+      0.6178162885402677,
+      0.5706750105318494,
+      0.5639706332431975
+    ]
+  },
+  "paired_t_cora": {
+    "mean_diff": 0.05377904360005614,
+    "t": 2.6068254383612466,
+    "df": 4,
+    "n": 5,
+    "se": 0.020630090073796337
+  },
+  "paired_t_citeseer": {
+    "mean_diff": 0.1002431667227071,
+    "t": 5.770769641534611,
+    "df": 4,
+    "n": 5,
+    "se": 0.017370848768804712
+  }
+}

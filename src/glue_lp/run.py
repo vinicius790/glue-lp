@@ -2,7 +2,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 from .graph import crafting_graph
 from .metrics import average_precision, hits_at_k, mrr, roc_auc
-from .models import embed_gcn, score_pairs
+from .models import adamic_adar, common_neighbors, embed_gcn, preferential_attachment, score_pairs
 from .protocol import leakage_exists, split_graph
 
 @dataclass
@@ -22,6 +22,8 @@ class Report:
     gnn_hits3: float
     gnn_mrr: float
     aa_auc: float
+    cn_auc: float
+    pa_auc: float
 
 def run_experiment(mode, split, negatives, seed):
     nodes, edges = crafting_graph()
@@ -30,16 +32,24 @@ def run_experiment(mode, split, negatives, seed):
     y = [1] * len(sp.positives) + [0] * len(sp.negatives)
     Z = embed_gcn(nodes, sp.mp_edges, seed=seed)
     gnn = score_pairs(Z, queries)
+    n = len(nodes)
+    aa = adamic_adar(n, sp.mp_edges, queries)
+    cn = common_neighbors(n, sp.mp_edges, queries)
+    pa = preferential_attachment(n, sp.mp_edges, queries)
     leak = leakage_exists(sp.mp_edges, sp.positives)
-    return Report(mode=mode, split=split, negatives=negatives, seed=seed, n_nodes=len(nodes),
+    return Report(mode=mode, split=split, negatives=negatives, seed=seed, n_nodes=n,
         n_mp=len(sp.mp_edges), n_pos=len(sp.positives), n_neg=len(sp.negatives), leakage=leak,
         invariant_held=(not leak) if mode == "valid" else True,
         gnn_auc=roc_auc(y, gnn), gnn_ap=average_precision(y, gnn),
-        gnn_hits3=hits_at_k(y, gnn, 3), gnn_mrr=mrr(y, gnn), aa_auc=0.0)
+        gnn_hits3=hits_at_k(y, gnn, 3), gnn_mrr=mrr(y, gnn),
+        aa_auc=roc_auc(y, aa), cn_auc=roc_auc(y, cn), pa_auc=roc_auc(y, pa))
 
 def compare_protocols(seed=7, split="temporal", negatives="hard"):
     valid = run_experiment("valid", split, negatives, seed)
     leaky = run_experiment("leaky", split, negatives, seed)
     return {"valid": asdict(valid), "leaky": asdict(leaky),
             "delta_gnn_auc": leaky.gnn_auc - valid.gnn_auc,
+            "delta_aa_auc": leaky.aa_auc - valid.aa_auc,
+            "delta_cn_auc": leaky.cn_auc - valid.cn_auc,
+            "delta_pa_auc": leaky.pa_auc - valid.pa_auc,
             "aviso": "ilustrativo-sintetico-n=12"}

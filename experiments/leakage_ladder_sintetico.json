@@ -1,0 +1,206 @@
+{
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "runs": [
+    {
+      "seed": 1,
+      "L1": {
+        "gnn_auc": 0.5546875,
+        "aa_auc": 0.25,
+        "cn_auc": 0.25,
+        "pa_auc": 0.21875
+      },
+      "L3": {
+        "gnn_auc": 0.3984375,
+        "aa_auc": 0.44921875,
+        "cn_auc": 0.4140625,
+        "pa_auc": 0.68359375
+      },
+      "L4_half_edge": {
+        "gnn_auc": 0.6953125,
+        "nota": "AA/CN/PA sob L4 nao recalculados: pela invariancia de 1a ordem (Sec. 4 do manuscrito), coincidem com L1 exceto por efeito de 2a ordem no grau de vizinhos comuns."
+      }
+    },
+    {
+      "seed": 2,
+      "L1": {
+        "gnn_auc": 0.6484375,
+        "aa_auc": 0.25,
+        "cn_auc": 0.25,
+        "pa_auc": 0.21875
+      },
+      "L3": {
+        "gnn_auc": 0.8203125,
+        "aa_auc": 0.44921875,
+        "cn_auc": 0.4140625,
+        "pa_auc": 0.68359375
+      },
+      "L4_half_edge": {
+        "gnn_auc": 0.796875,
+        "nota": "AA/CN/PA sob L4 nao recalculados: pela invariancia de 1a ordem (Sec. 4 do manuscrito), coincidem com L1 exceto por efeito de 2a ordem no grau de vizinhos comuns."
+      }
+    },
+    {
+      "seed": 3,
+      "L1": {
+        "gnn_auc": 0.3125,
+        "aa_auc": 0.25,
+        "cn_auc": 0.25,
+        "pa_auc": 0.21875
+      },
+      "L3": {
+        "gnn_auc": 0.9375,
+        "aa_auc": 0.44921875,
+        "cn_auc": 0.4140625,
+        "pa_auc": 0.68359375
+      },
+      "L4_half_edge": {
+        "gnn_auc": 0.703125,
+        "nota": "AA/CN/PA sob L4 nao recalculados: pela invariancia de 1a ordem (Sec. 4 do manuscrito), coincidem com L1 exceto por efeito de 2a ordem no grau de vizinhos comuns."
+      }
+    },
+    {
+      "seed": 4,
+      "L1": {
+        "gnn_auc": 0.8515625,
+        "aa_auc": 0.25,
+        "cn_auc": 0.25,
+        "pa_auc": 0.21875
+      },
+      "L3": {
+        "gnn_auc": 0.96875,
+        "aa_auc": 0.44921875,
+        "cn_auc": 0.4140625,
+        "pa_auc": 0.68359375
+      },
+      "L4_half_edge": {
+        "gnn_auc": 0.859375,
+        "nota": "AA/CN/PA sob L4 nao recalculados: pela invariancia de 1a ordem (Sec. 4 do manuscrito), coincidem com L1 exceto por efeito de 2a ordem no grau de vizinhos comuns."
+      }
+    },
+    {
+      "seed": 5,
+      "L1": {
+        "gnn_auc": 0.921875,
+        "aa_auc": 0.25,
+        "cn_auc": 0.25,
+        "pa_auc": 0.21875
+      },
+      "L3": {
+        "gnn_auc": 0.6875,
+        "aa_auc": 0.44921875,
+        "cn_auc": 0.4140625,
+        "pa_auc": 0.68359375
+      },
+      "L4_half_edge": {
+        "gnn_auc": 0.9140625,
+        "nota": "AA/CN/PA sob L4 nao recalculados: pela invariancia de 1a ordem (Sec. 4 do manuscrito), coincidem com L1 exceto por efeito de 2a ordem no grau de vizinhos comuns."
+      }
+    },
+    {
+      "seed": 6,
+      "L1": {
+        "gnn_auc": 0.890625,
+        "aa_auc": 0.25,
+        "cn_auc": 0.25,
+        "pa_auc": 0.21875
+      },
+      "L3": {
+        "gnn_auc": 0.9453125,
+        "aa_auc": 0.44921875,
+        "cn_auc": 0.4140625,
+        "pa_auc": 0.68359375
+      },
+      "L4_half_edge": {
+        "gnn_auc": 0.9375,
+        "nota": "AA/CN/PA sob L4 nao recalculados: pela invariancia de 1a ordem (Sec. 4 do manuscrito), coincidem com L1 exceto por efeito de 2a ordem no grau de vizinhos comuns."
+      }
+    },
+    {
+      "seed": 7,
+      "L1": {
+        "gnn_auc": 0.8203125,
+        "aa_auc": 0.25,
+        "cn_auc": 0.25,
+        "pa_auc": 0.21875
+      },
+      "L3": {
+        "gnn_auc": 0.984375,
+        "aa_auc": 0.44921875,
+        "cn_auc": 0.4140625,
+        "pa_auc": 0.68359375
+      },
+      "L4_half_edge": {
+        "gnn_auc": 0.96875,
+        "nota": "AA/CN/PA sob L4 nao recalculados: pela invariancia de 1a ordem (Sec. 4 do manuscrito), coincidem com L1 exceto por efeito de 2a ordem no grau de vizinhos comuns."
+      }
+    },
+    {
+      "seed": 8,
+      "L1": {
+        "gnn_auc": 0.671875,
+        "aa_auc": 0.25,
+        "cn_auc": 0.25,
+        "pa_auc": 0.21875
+      },
+      "L3": {
+        "gnn_auc": 0.90625,
+        "aa_auc": 0.44921875,
+        "cn_auc": 0.4140625,
+        "pa_auc": 0.68359375
+      },
+      "L4_half_edge": {
+        "gnn_auc": 0.90625,
+        "nota": "AA/CN/PA sob L4 nao recalculados: pela invariancia de 1a ordem (Sec. 4 do manuscrito), coincidem com L1 exceto por efeito de 2a ordem no grau de vizinhos comuns."
+      }
+    },
+    {
+      "seed": 9,
+      "L1": {
+        "gnn_auc": 0.7265625,
+        "aa_auc": 0.25,
+        "cn_auc": 0.25,
+        "pa_auc": 0.21875
+      },
+      "L3": {
+        "gnn_auc": 0.59375,
+        "aa_auc": 0.44921875,
+        "cn_auc": 0.4140625,
+        "pa_auc": 0.68359375
+      },
+      "L4_half_edge": {
+        "gnn_auc": 0.9140625,
+        "nota": "AA/CN/PA sob L4 nao recalculados: pela invariancia de 1a ordem (Sec. 4 do manuscrito), coincidem com L1 exceto por efeito de 2a ordem no grau de vizinhos comuns."
+      }
+    },
+    {
+      "seed": 10,
+      "L1": {
+        "gnn_auc": 0.734375,
+        "aa_auc": 0.25,
+        "cn_auc": 0.25,
+        "pa_auc": 0.21875
+      },
+      "L3": {
+        "gnn_auc": 0.546875,
+        "aa_auc": 0.44921875,
+        "cn_auc": 0.4140625,
+        "pa_auc": 0.68359375
+      },
+      "L4_half_edge": {
+        "gnn_auc": 0.90625,
+        "nota": "AA/CN/PA sob L4 nao recalculados: pela invariancia de 1a ordem (Sec. 4 do manuscrito), coincidem com L1 exceto por efeito de 2a ordem no grau de vizinhos comuns."
+      }
+    }
+  ]
+}

@@ -1,0 +1,282 @@
+{
+  "seconds": 70.5,
+  "rows": [
+    {
+      "dataset": "cora",
+      "seed": 0,
+      "mode": "valid",
+      "kind": "gat",
+      "negatives": "uniform",
+      "auc": 0.7938890069096133,
+      "epochs_run": 20,
+      "n_test": 527
+    },
+    {
+      "dataset": "cora",
+      "seed": 0,
+      "mode": "leaky",
+      "kind": "gat",
+      "negatives": "uniform",
+      "auc": 0.8955204533916156,
+      "epochs_run": 11,
+      "n_test": 527
+    },
+    {
+      "dataset": "cora",
+      "seed": 0,
+      "mode": "valid",
+      "kind": "gcn",
+      "negatives": "degree",
+      "auc": 0.6372002923713405,
+      "epochs_run": 11,
+      "n_test": 527
+    },
+    {
+      "dataset": "cora",
+      "seed": 1,
+      "mode": "valid",
+      "kind": "gat",
+      "negatives": "uniform",
+      "auc": 0.783367959413673,
+      "epochs_run": 26,
+      "n_test": 527
+    },
+    {
+      "dataset": "cora",
+      "seed": 1,
+      "mode": "leaky",
+      "kind": "gat",
+      "negatives": "uniform",
+      "auc": 0.874071486953109,
+      "epochs_run": 11,
+      "n_test": 527
+    },
+    {
+      "dataset": "cora",
+      "seed": 1,
+      "mode": "valid",
+      "kind": "gcn",
+      "negatives": "degree",
+      "auc": 0.6384677149307418,
+      "epochs_run": 20,
+      "n_test": 527
+    },
+    {
+      "dataset": "cora",
+      "seed": 2,
+      "mode": "valid",
+      "kind": "gat",
+      "negatives": "uniform",
+      "auc": 0.7390765818477725,
+      "epochs_run": 19,
+      "n_test": 527
+    },
+    {
+      "dataset": "cora",
+      "seed": 2,
+      "mode": "leaky",
+      "kind": "gat",
+      "negatives": "uniform",
+      "auc": 0.8413093339190362,
+      "epochs_run": 11,
+      "n_test": 527
+    },
+    {
+      "dataset": "cora",
+      "seed": 2,
+      "mode": "valid",
+      "kind": "gcn",
+      "negatives": "degree",
+      "auc": 0.5949288695094859,
+      "epochs_run": 11,
+      "n_test": 527
+    },
+    {
+      "dataset": "cora",
+      "seed": 3,
+      "mode": "valid",
+      "kind": "gat",
+      "negatives": "uniform",
+      "auc": 0.7924307508398475,
+      "epochs_run": 22,
+      "n_test": 527
+    },
+    {
+      "dataset": "cora",
+      "seed": 3,
+      "mode": "leaky",
+      "kind": "gat",
+      "negatives": "uniform",
+      "auc": 0.8894893943376457,
+      "epochs_run": 11,
+      "n_test": 527
+    },
+    {
+      "dataset": "cora",
+      "seed": 3,
+      "mode": "valid",
+      "kind": "gcn",
+      "negatives": "degree",
+      "auc": 0.6247024977586064,
+      "epochs_run": 11,
+      "n_test": 527
+    },
+    {
+      "dataset": "cora",
+      "seed": 4,
+      "mode": "valid",
+      "kind": "gat",
+      "negatives": "uniform",
+      "auc": 0.8017599890540779,
+      "epochs_run": 12,
+      "n_test": 527
+    },
+    {
+      "dataset": "cora",
+      "seed": 4,
+      "mode": "leaky",
+      "kind": "gat",
+      "negatives": "uniform",
+      "auc": 0.8791699822488829,
+      "epochs_run": 11,
+      "n_test": 527
+    },
+    {
+      "dataset": "cora",
+      "seed": 4,
+      "mode": "valid",
+      "kind": "gcn",
+      "negatives": "degree",
+      "auc": 0.5608632875933014,
+      "epochs_run": 11,
+      "n_test": 527
+    },
+    {
+      "dataset": "pubmed",
+      "seed": 0,
+      "mode": "valid",
+      "kind": "gcn",
+      "negatives": "uniform",
+      "auc": 0.8849158595104198,
+      "epochs_run": 17,
+      "n_test": 4432
+    },
+    {
+      "dataset": "pubmed",
+      "seed": 0,
+      "mode": "leaky",
+      "kind": "gcn",
+      "negatives": "uniform",
+      "auc": 0.9106588814203235,
+      "epochs_run": 9,
+      "n_test": 4432
+    },
+    {
+      "dataset": "pubmed",
+      "seed": 1,
+      "mode": "valid",
+      "kind": "gcn",
+      "negatives": "uniform",
+      "auc": 0.884768959585033,
+      "epochs_run": 9,
+      "n_test": 4432
+    },
+    {
+      "dataset": "pubmed",
+      "seed": 1,
+      "mode": "leaky",
+      "kind": "gcn",
+      "negatives": "uniform",
+      "auc": 0.9250040116839787,
+      "epochs_run": 9,
+      "n_test": 4432
+    },
+    {
+      "dataset": "pubmed",
+      "seed": 2,
+      "mode": "valid",
+      "kind": "gcn",
+      "negatives": "uniform",
+      "auc": 0.8894357749758892,
+      "epochs_run": 10,
+      "n_test": 4432
+    },
+    {
+      "dataset": "pubmed",
+      "seed": 2,
+      "mode": "leaky",
+      "kind": "gcn",
+      "negatives": "uniform",
+      "auc": 0.9270218429065281,
+      "epochs_run": 9,
+      "n_test": 4432
+    }
+  ],
+  "summary": {
+    "cora_gat_valid": {
+      "mean": 0.7821048576129969,
+      "std": 0.02492409666883889,
+      "values": [
+        0.7938890069096133,
+        0.783367959413673,
+        0.7390765818477725,
+        0.7924307508398475,
+        0.8017599890540779
+      ]
+    },
+    "cora_gat_leaky": {
+      "mean": 0.875912130170058,
+      "std": 0.021096110529235417,
+      "values": [
+        0.8955204533916156,
+        0.874071486953109,
+        0.8413093339190362,
+        0.8894893943376457,
+        0.8791699822488829
+      ]
+    },
+    "cora_gcn_degree_matched": {
+      "mean": 0.6112325324326953,
+      "std": 0.03316771750595259,
+      "values": [
+        0.6372002923713405,
+        0.6384677149307418,
+        0.5949288695094859,
+        0.6247024977586064,
+        0.5608632875933014
+      ]
+    },
+    "paired_t_gat": {
+      "mean_diff": 0.09380727255706105,
+      "t": 20.4392590626003,
+      "df": 4,
+      "n": 5,
+      "se": 0.0045895632649771215
+    },
+    "pubmed_gcn_valid": {
+      "mean": 0.886373531357114,
+      "std": 0.002652997716276201,
+      "values": [
+        0.8849158595104198,
+        0.884768959585033,
+        0.8894357749758892
+      ]
+    },
+    "pubmed_gcn_leaky": {
+      "mean": 0.9208949120036101,
+      "std": 0.00892189174374797,
+      "values": [
+        0.9106588814203235,
+        0.9250040116839787,
+        0.9270218429065281
+      ]
+    },
+    "paired_t_pubmed": {
+      "mean_diff": 0.03452138064649609,
+      "t": 7.748393568644795,
+      "df": 2,
+      "n": 3,
+      "se": 0.004455295196438238
+    }
+  }
+}

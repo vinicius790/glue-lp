@@ -1,0 +1,188 @@
+{
+  "label": "smoke",
+  "aviso": "smoke-synthetic-only; NOT a measured Cora/Citeseer/Pubmed result; do not cite as study primary AUC",
+  "generator": "scripts/smoke_synthetic.py",
+  "graph": "glue_lp.graph.crafting_graph",
+  "n_nodes": 12,
+  "seeds": [
+    7,
+    11,
+    23
+  ],
+  "train_config_ref": {
+    "hidden": 32,
+    "lr": 0.01,
+    "note": "smoke uses NumPy embed_gcn, not torch TrainConfig epochs"
+  },
+  "protocol_ref": {
+    "mode_default": "valid",
+    "assert_invariant": true
+  },
+  "utc_stamp": "20260925T160143Z",
+  "seconds": 0.002,
+  "rows": [
+    {
+      "seed": 7,
+      "mode": "valid",
+      "n_pos": 8,
+      "n_neg": 16,
+      "leakage": false,
+      "gnn": {
+        "auc": 0.8203125,
+        "ap": 0.782069530710835,
+        "mrr": 0.5494791666666666,
+        "hits3": 0.875,
+        "hits10": 0.875
+      },
+      "aa": {
+        "auc": 0.25,
+        "ap": 0.33712814962814963
+      },
+      "cn": {
+        "auc": 0.25
+      },
+      "pa": {
+        "auc": 0.21875
+      },
+      "hits3_gnn": 0.875,
+      "mrr_gnn": 0.5494791666666666
+    },
+    {
+      "seed": 7,
+      "mode": "leaky",
+      "n_pos": 8,
+      "n_neg": 16,
+      "leakage": true,
+      "gnn": {
+        "auc": 0.9375,
+        "ap": 0.9029761904761905,
+        "mrr": 0.74375,
+        "hits3": 0.75,
+        "hits10": 1.0
+      },
+      "aa": {
+        "auc": 0.20703125,
+        "ap": 0.27737654103143233
+      },
+      "cn": {
+        "auc": 0.13671875
+      },
+      "pa": {
+        "auc": 0.5390625
+      },
+      "hits3_gnn": 0.75,
+      "mrr_gnn": 0.74375
+    },
+    {
+      "seed": 11,
+      "mode": "valid",
+      "n_pos": 8,
+      "n_neg": 16,
+      "leakage": false,
+      "gnn": {
+        "auc": 0.65625,
+        "ap": 0.4537962037962038,
+        "mrr": 0.1976190476190476,
+        "hits3": 0.25,
+        "hits10": 0.875
+      },
+      "aa": {
+        "auc": 0.25,
+        "ap": 0.33712814962814963
+      },
+      "cn": {
+        "auc": 0.25
+      },
+      "pa": {
+        "auc": 0.21875
+      },
+      "hits3_gnn": 0.25,
+      "mrr_gnn": 0.1976190476190476
+    },
+    {
+      "seed": 11,
+      "mode": "leaky",
+      "n_pos": 8,
+      "n_neg": 16,
+      "leakage": true,
+      "gnn": {
+        "auc": 0.1796875,
+        "ap": 0.23596332479720217,
+        "mrr": 0.07497777957336782,
+        "hits3": 0.0,
+        "hits10": 0.125
+      },
+      "aa": {
+        "auc": 0.20703125,
+        "ap": 0.27737654103143233
+      },
+      "cn": {
+        "auc": 0.13671875
+      },
+      "pa": {
+        "auc": 0.5390625
+      },
+      "hits3_gnn": 0.0,
+      "mrr_gnn": 0.07497777957336782
+    },
+    {
+      "seed": 23,
+      "mode": "valid",
+      "n_pos": 8,
+      "n_neg": 16,
+      "leakage": false,
+      "gnn": {
+        "auc": 0.6796875,
+        "ap": 0.5686417748917748,
+        "mrr": 0.3068321078431372,
+        "hits3": 0.75,
+        "hits10": 0.75
+      },
+      "aa": {
+        "auc": 0.25,
+        "ap": 0.33712814962814963
+      },
+      "cn": {
+        "auc": 0.25
+      },
+      "pa": {
+        "auc": 0.21875
+      },
+      "hits3_gnn": 0.75,
+      "mrr_gnn": 0.3068321078431372
+    },
+    {
+      "seed": 23,
+      "mode": "leaky",
+      "n_pos": 8,
+      "n_neg": 16,
+      "leakage": true,
+      "gnn": {
+        "auc": 0.6484375,
+        "ap": 0.4476380135387488,
+        "mrr": 0.19791666666666669,
+        "hits3": 0.125,
+        "hits10": 1.0
+      },
+      "aa": {
+        "auc": 0.20703125,
+        "ap": 0.27737654103143233
+      },
+      "cn": {
+        "auc": 0.13671875
+      },
+      "pa": {
+        "auc": 0.5390625
+      },
+      "hits3_gnn": 0.125,
+      "mrr_gnn": 0.19791666666666669
+    }
+  ],
+  "summary": {
+    "gnn_valid_auc_mean": 0.71875,
+    "gnn_leaky_auc_mean": 0.5885416666666666,
+    "delta_leaky_minus_valid": -0.13020833333333337,
+    "all_valid_no_leakage": true,
+    "all_leaky_has_leakage": true
+  }
+}

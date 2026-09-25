@@ -50,8 +50,12 @@ class GraphSAGE(nn.Module):
         neigh = msg / deg.clamp(min=1.0).unsqueeze(-1)
         return F.relu(linear(torch.cat([x, neigh], 1)))
     def encode(self, x, src, dst, w, n):
+        # L2-normalize final embedding (GraphSAGE paper practice; recommended fix
+        # for the low Cora SAGE AUC 0.577 measured under the prior code — re-run
+        # after this change is proposed / not yet measured).
         h = F.dropout(self._sage(x, src, dst, n, self.w1), p=self.dropout, training=self.training)
-        return self._sage(h, src, dst, n, self.w2)
+        z = self._sage(h, src, dst, n, self.w2)
+        return F.normalize(z, p=2, dim=-1)
 
 class GAT(nn.Module):
     def __init__(self, in_dim, hidden=32, dropout=0.4):
@@ -75,38 +79,72 @@ class GAT(nn.Module):
         h = F.dropout(self._gat(x, src, dst, n, self.w1, self.a1), p=self.dropout, training=self.training)
         return self._gat(h, src, dst, n, self.w2, self.a2)
 
-def train_encoder(x_np, mp_edges, pos_train, pos_val, n, *, seed, kind="gcn", hidden=32, epochs=80, lr=0.01, patience=15):
+def _sample_negatives(rng, n, forbidden, k):
+    neg, tries = [], 0
+    while len(neg) < k and tries < k * 200:
+        a, b = int(rng.integers(0, n)), int(rng.integers(0, n))
+        tries += 1
+        if a == b:
+            continue
+        key = (a, b) if a < b else (b, a)
+        if key in forbidden:
+            continue
+        neg.append(key)
+    return np.array(neg, dtype=np.int64) if neg else np.zeros((0, 2), dtype=np.int64)
+
+
+def train_encoder(x_np, mp_edges, pos_train, pos_val, n, *, seed, kind="gcn", hidden=32, epochs=80, lr=0.01, patience=15, weight_decay=5e-4, dropout=None):
+    """Correcao (2026): a versao anterior calculava `score = 0.0` sempre que
+    `pos_val` era fornecido (linha morta: `... if pos_val is None else 0.0`),
+    o que tornava a condicao `score >= best_val` verdadeira em TODO epoch e
+    fazia `stall` nunca incrementar. Resultado: o early stopping baseado em
+    validacao nunca disparava no modo "valid" (patience virava no-op e
+    best_z era sempre o ultimo epoch, sem selecao real de modelo), enquanto
+    o modo "leaky" usava um criterio diferente (perda de treino). Isso e
+    uma assimetria que invalida a comparacao pareada valido-vs-leaky.
+    Agora `pos_val` e usado de fato: AUC real em negativos amostrados uma
+    unica vez (fixos ao longo do treino, para a serie de "score" por epoch
+    ser comparavel), com `>` estrito para contagem correta de patience.
+    """
     torch.manual_seed(seed); np.random.seed(seed)
     dev = device_of()
     x = torch.from_numpy(np.ascontiguousarray(x_np)).to(dev)
     src, dst, w = edge_index_sym(n, mp_edges, dev)
-    model = {"gcn": SparseGCN, "sage": GraphSAGE, "gat": GAT}[kind](x.size(1), hidden).to(dev)
-    opt = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=5e-4)
-    rng = np.random.default_rng(seed+17)
-    forbidden = {(int(a), int(b)) if a<b else (int(b), int(a)) for a,b in mp_edges}
-    best_z, best_val, stall = None, -1.0, 0
+    ctor = {"gcn": SparseGCN, "sage": GraphSAGE, "gat": GAT}[kind]
+    # dropout=None → keep each class default (GCN/SAGE 0.5, GAT 0.4) to match measured runs
+    model = (ctor(x.size(1), hidden, dropout=dropout) if dropout is not None else ctor(x.size(1), hidden)).to(dev)
+    opt = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
+    rng = np.random.default_rng(seed + 17)
+    forbidden = {(int(a), int(b)) if a < b else (int(b), int(a)) for a, b in mp_edges}
+
+    has_val = pos_val is not None and len(pos_val) > 0
+    val_neg = _sample_negatives(rng, n, forbidden, max(len(pos_val), 8)) if has_val else None
+
+    best_z, best_val, stall, epoch, z_np = None, -1.0, 0, 0, None
     for epoch in range(epochs):
         model.train()
-        neg=[]
-        while len(neg)<max(len(pos_train),8):
-            a,b = int(rng.integers(0,n)), int(rng.integers(0,n))
-            if a==b: continue
-            key=(a,b) if a<b else (b,a)
-            if key in forbidden: continue
-            neg.append(key)
+        neg = _sample_negatives(rng, n, forbidden, max(len(pos_train), 8))
         z = model.encode(x, src, dst, w, n)
+        pt = torch.as_tensor(pos_train, device=dev)
+        nt = torch.as_tensor(neg, device=dev)
         loss = F.binary_cross_entropy_with_logits(
-            torch.cat([ (z[torch.as_tensor(pos_train[:,0],device=dev)]*z[torch.as_tensor(pos_train[:,1],device=dev)]).sum(-1),
-                        (z[torch.as_tensor(np.array(neg)[:,0],device=dev)]*z[torch.as_tensor(np.array(neg)[:,1],device=dev)]).sum(-1)]),
-            torch.cat([torch.ones(len(pos_train),device=dev), torch.zeros(len(neg),device=dev)]))
+            torch.cat([(z[pt[:, 0]] * z[pt[:, 1]]).sum(-1),
+                       (z[nt[:, 0]] * z[nt[:, 1]]).sum(-1)]),
+            torch.cat([torch.ones(len(pos_train), device=dev), torch.zeros(len(neg), device=dev)]))
         opt.zero_grad(); loss.backward(); opt.step()
         model.eval()
         with torch.no_grad():
             z_np = model.encode(x, src, dst, w, n).cpu().numpy()
-        score = -float(loss.detach().cpu()) if pos_val is None else 0.0
-        if score >= best_val:
+        if has_val and len(val_neg):
+            sp = (z_np[pos_val[:, 0]] * z_np[pos_val[:, 1]]).sum(1)
+            sn = (z_np[val_neg[:, 0]] * z_np[val_neg[:, 1]]).sum(1)
+            score = roc_auc([1] * len(pos_val) + [0] * len(val_neg), np.concatenate([sp, sn]).tolist())
+        else:
+            score = -float(loss.detach().cpu())
+        if score > best_val:
             best_val, best_z, stall = score, z_np, 0
         else:
             stall += 1
-            if stall >= patience: break
-    return {"z": best_z, "best_val": best_val, "epochs_run": epoch+1}
+            if stall >= patience:
+                break
+    return {"z": best_z if best_z is not None else z_np, "best_val": best_val, "epochs_run": epoch + 1}

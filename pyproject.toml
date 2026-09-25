@@ -1,12 +1,32 @@
 [project]
 name = "glue-lp"
-version = "0.1.0"
-description = "Graph Link-evaluation Under Exclusion"
+version = "0.5.0"
+description = "Graph Link-evaluation Under Exclusion — protocolo de predição de ligações sem vazamento de aresta-alvo"
+readme = "README.md"
 requires-python = ">=3.11"
+license = { text = "MIT" }
+keywords = ["gnn", "link-prediction", "evaluation", "leakage"]
 dependencies = ["numpy>=1.26"]
 
 [project.optional-dependencies]
-dev = ["pytest>=8"]
+torch = ["torch>=2.1"]
+docs = ["python-docx>=1.1", "matplotlib>=3.8"]
+api = ["fastapi>=0.110", "uvicorn>=0.27"]
+analysis = ["networkx>=3.2"]
+dev = ["pytest>=8", "ruff>=0.4"]
+all = ["glue-lp[torch,docs,api,analysis,dev]"]
+
+[project.scripts]
+glue-lp = "glue_lp.cli:main"
+glue-lp-check = "glue_lp.cli:main"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["src"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]

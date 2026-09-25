@@ -1,6 +1,5 @@
-numpy>=1.26
-torch>=2.1
-matplotlib>=3.8
-pytest>=8
-ruff>=0.6
-python-docx>=1.1
+-r requirements.txt
+ruff>=0.4
+fastapi>=0.110
+uvicorn>=0.27
+networkx>=3.2

@@ -1,5 +1,11 @@
 import numpy as np
-import torch
+
+try:
+    import torch
+except ImportError:
+    import pytest
+    pytest.skip("torch nao instalado neste ambiente", allow_module_level=True)
+
 from glue_lp.torch_models import GAT, edge_index_sym
 
 def test_gat_shape():

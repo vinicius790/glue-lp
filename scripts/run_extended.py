@@ -1,23 +1,37 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import json, time
+
+import json
+import time
 from pathlib import Path
+
 import numpy as np
+
 from glue_lp.data_citation import load_citeseer, load_cora
 from glue_lp.heuristics import scores_aa
 from glue_lp.metrics import roc_auc
-from glue_lp.splits import build_adj, edge_set, random_edge_split, sample_uniform_negatives
-from glue_lp.stats import paired_t
+from glue_lp.splits import (
+    build_adj,
+    edge_set,
+    random_edge_split,
+    sample_uniform_negatives,
+)
+from glue_lp.stats import degree_bins, paired_t
+from glue_lp.config import DEFAULT_TRAIN
 from glue_lp.torch_models import train_encoder
 
 OUT = Path(__file__).resolve().parents[1] / "experiments"
-SEEDS = [0, 1, 2, 3, 4]
+CFG = DEFAULT_TRAIN
+SEEDS = list(CFG.seeds)
+
 
 def eval_z(z, pos, neg):
     sp = (z[pos[:, 0]] * z[pos[:, 1]]).sum(1)
     sn = (z[neg[:, 0]] * z[neg[:, 1]]).sum(1)
     y = [1] * len(pos) + [0] * len(neg)
-    return roc_auc(y, np.concatenate([sp, sn]).tolist())
+    s = np.concatenate([sp, sn]).tolist()
+    return roc_auc(y, s), np.concatenate([sp, sn]), y, np.vstack([pos, neg])
+
 
 def cell(data, seed, mode, kind):
     n = data["n"]
@@ -26,30 +40,82 @@ def cell(data, seed, mode, kind):
     mp = np.vstack([train, val, test]) if mode == "leaky" else train
     rng = np.random.default_rng(seed + 99)
     neg = sample_uniform_negatives(n, set(edge_set(data["edges"])), len(test), rng)
-    packed = train_encoder(data["x"], mp, train, val if mode == "valid" else None,
-                           n, seed=seed, kind=kind, hidden=32, epochs=70, patience=12)
-    return {"dataset": data["name"], "seed": seed, "mode": mode, "kind": kind,
-            "auc": eval_z(packed["z"], test, neg), "epochs_run": packed["epochs_run"]}
+    # Always pass val so early-stopping criterion is symmetric (valid vs leaky).
+    packed = train_encoder(
+        data["x"], mp, train, val,
+        n, seed=seed, kind=kind,
+        hidden=CFG.hidden, epochs=CFG.epochs_cap, patience=CFG.patience,
+    )
+    auc, scores, y, pairs = eval_z(packed["z"], test, neg)
+    adj = build_adj(n, mp)
+    deg = [len(s) for s in adj]
+    bins = degree_bins(deg, pairs, scores, y)
+    aa = scores_aa(n, mp, pairs)
+    aa_auc = roc_auc(y, aa.tolist())
+    return {
+        "dataset": data["name"],
+        "seed": seed,
+        "mode": mode,
+        "kind": kind,
+        "auc": auc,
+        "aa_auc": aa_auc,
+        "epochs_run": packed["epochs_run"],
+        "best_val": packed["best_val"],
+        "n_test": int(len(test)),
+        "bins": bins,
+    }
+
 
 def main():
+    t0 = time.time()
     rows = []
-    cora, citeseer = load_cora(), load_citeseer()
+    cora = load_cora()
+    citeseer = load_citeseer()
+    print("cora", cora["n"], len(cora["edges"]), "citeseer", citeseer["n"], len(citeseer["edges"]), flush=True)
+
     for seed in SEEDS:
         for mode in ("valid", "leaky"):
-            rows.append(cell(cora, seed, mode, "gcn"))
-        rows.append(cell(cora, seed, "valid", "sage"))
+            r = cell(cora, seed, mode, "gcn")
+            rows.append(r)
+            print("cora-gcn", seed, mode, round(r["auc"], 4), "ep", r["epochs_run"], flush=True)
+        r = cell(cora, seed, "valid", "sage")
+        rows.append(r)
+        print("cora-sage", seed, round(r["auc"], 4), flush=True)
+
     for seed in SEEDS:
         for mode in ("valid", "leaky"):
-            rows.append(cell(citeseer, seed, mode, "gcn"))
+            r = cell(citeseer, seed, mode, "gcn")
+            rows.append(r)
+            print("citeseer-gcn", seed, mode, round(r["auc"], 4), flush=True)
+
     def pick(ds, kind, mode):
-        return [r["auc"] for r in rows if r["dataset"]==ds and r["kind"]==kind and r["mode"]==mode]
+        return [r for r in rows if r["dataset"] == ds and r["kind"] == kind and r["mode"] == mode]
+
+    def ms(vals):
+        a = np.asarray(vals, float)
+        return {"mean": float(a.mean()), "std": float(a.std(ddof=1)), "values": [float(x) for x in vals]}
+
+    cg_v = pick("cora", "gcn", "valid")
+    cg_l = pick("cora", "gcn", "leaky")
+    cs_v = pick("citeseer", "gcn", "valid")
+    cs_l = pick("citeseer", "gcn", "leaky")
+    sage = pick("cora", "sage", "valid")
     summary = {
-        "paired_t_cora": paired_t(pick("cora","gcn","leaky"), pick("cora","gcn","valid")),
-        "paired_t_citeseer": paired_t(pick("citeseer","gcn","leaky"), pick("citeseer","gcn","valid")),
+        "cora_gcn_valid": ms([r["auc"] for r in cg_v]),
+        "cora_gcn_leaky": ms([r["auc"] for r in cg_l]),
+        "citeseer_gcn_valid": ms([r["auc"] for r in cs_v]),
+        "citeseer_gcn_leaky": ms([r["auc"] for r in cs_l]),
+        "cora_sage_valid": ms([r["auc"] for r in sage]),
+        "paired_t_cora": paired_t([r["auc"] for r in cg_l], [r["auc"] for r in cg_v]),
+        "paired_t_citeseer": paired_t([r["auc"] for r in cs_l], [r["auc"] for r in cs_v]),
     }
+    out = {"seconds": round(time.time() - t0, 1), "rows": rows, "summary": summary}
     OUT.mkdir(parents=True, exist_ok=True)
-    (OUT/"extended_gcn_sage.json").write_text(json.dumps({"rows": rows, "summary": summary}, indent=2))
+    path = OUT / "extended_gcn_sage.json"
+    path.write_text(json.dumps(out, indent=2))
+    print("WROTE", path, out["seconds"])
     print(json.dumps(summary, indent=2))
+
 
 if __name__ == "__main__":
     main()

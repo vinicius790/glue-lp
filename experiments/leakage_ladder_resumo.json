@@ -1,0 +1,99 @@
+{
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "escada": {
+    "L1": {
+      "mean": 0.7133,
+      "sd": 0.1726,
+      "n": 10
+    },
+    "L3": {
+      "mean": 0.7789,
+      "sd": 0.1976,
+      "n": 10
+    },
+    "L4_half_edge": {
+      "mean": 0.8602,
+      "sd": 0.0915,
+      "n": 10
+    },
+    "delta_aa_auc_L3_menos_L1": {
+      "mean": 0.1992,
+      "sd": 0.0,
+      "n": 10
+    },
+    "delta_cn_auc_L3_menos_L1": {
+      "mean": 0.1641,
+      "sd": 0.0,
+      "n": 10
+    },
+    "delta_pa_auc_L3_menos_L1": {
+      "mean": 0.4648,
+      "sd": 0.0,
+      "n": 10
+    },
+    "delta_gnn_auc_L3_menos_L1": {
+      "mean": 0.0656,
+      "sd": 0.2465,
+      "n": 10
+    },
+    "delta_gnn_auc_L4_menos_L1": {
+      "mean": 0.1469,
+      "sd": 0.1108,
+      "n": 10
+    }
+  },
+  "exaustivo": {
+    "gnn_auc_exata_valido": {
+      "mean": 0.6522,
+      "sd": 0.1343,
+      "n": 10
+    },
+    "gnn_auc_exata_leaky": {
+      "mean": 0.6894,
+      "sd": 0.1512,
+      "n": 10
+    },
+    "aa_auc_exata_valido": {
+      "mean": 0.413,
+      "sd": 0.0,
+      "n": 10
+    },
+    "aa_auc_exata_leaky": {
+      "mean": 0.4905,
+      "sd": 0.0,
+      "n": 10
+    },
+    "cn_auc_exata_valido": {
+      "mean": 0.413,
+      "sd": 0.0,
+      "n": 10
+    },
+    "cn_auc_exata_leaky": {
+      "mean": 0.4579,
+      "sd": 0.0,
+      "n": 10
+    },
+    "pa_auc_exata_valido": {
+      "mean": 0.4022,
+      "sd": 0.0,
+      "n": 10
+    },
+    "pa_auc_exata_leaky": {
+      "mean": 0.7038,
+      "sd": 0.0,
+      "n": 10
+    },
+    "n_pares_avaliados_media": 54
+  }
+}

@@ -1,4 +1,20 @@
 {
   "aviso": "ilustrativo-sintetico-n=12; nao e estudo principal",
-  "gerador": "glue_lp.graph.crafting_graph"
+  "gerador": "glue_lp.graph.crafting_graph",
+  "encoder": "GCN raso 2 camadas, media, Xavier, decoder bilinear",
+  "heuristic": "Adamic-Adar",
+  "runs": [
+    {"seed": 7, "split": "temporal", "neg": "hard", "valid_gnn_auc": 0.9297, "leaky_gnn_auc": 0.9062, "delta": -0.0234, "valid_aa_auc": 0.5, "n_pos": 8, "n_mp": 12},
+    {"seed": 7, "split": "temporal", "neg": "uniform", "valid_gnn_auc": 0.6719, "leaky_gnn_auc": 0.8047, "delta": 0.1328, "valid_aa_auc": 0.875, "n_pos": 8, "n_mp": 12},
+    {"seed": 7, "split": "random", "neg": "hard", "valid_gnn_auc": 0.34, "leaky_gnn_auc": 0.46, "delta": 0.12, "valid_aa_auc": 0.38, "n_pos": 5, "n_mp": 15},
+    {"seed": 7, "split": "random", "neg": "uniform", "valid_gnn_auc": 0.36, "leaky_gnn_auc": 0.3, "delta": -0.06, "valid_aa_auc": 0.84, "n_pos": 5, "n_mp": 15},
+    {"seed": 11, "split": "temporal", "neg": "hard", "valid_gnn_auc": 0.5859, "leaky_gnn_auc": 0.5078, "delta": -0.0781, "valid_aa_auc": 0.5, "n_pos": 8, "n_mp": 12},
+    {"seed": 11, "split": "temporal", "neg": "uniform", "valid_gnn_auc": 0.5391, "leaky_gnn_auc": 0.5781, "delta": 0.0391, "valid_aa_auc": 0.8125, "n_pos": 8, "n_mp": 12},
+    {"seed": 11, "split": "random", "neg": "hard", "valid_gnn_auc": 0.4, "leaky_gnn_auc": 0.66, "delta": 0.26, "valid_aa_auc": 0.08, "n_pos": 5, "n_mp": 15},
+    {"seed": 11, "split": "random", "neg": "uniform", "valid_gnn_auc": 0.7, "leaky_gnn_auc": 0.82, "delta": 0.12, "valid_aa_auc": 0.78, "n_pos": 5, "n_mp": 15},
+    {"seed": 23, "split": "temporal", "neg": "hard", "valid_gnn_auc": 0.4766, "leaky_gnn_auc": 0.4453, "delta": -0.0312, "valid_aa_auc": 0.5, "n_pos": 8, "n_mp": 12},
+    {"seed": 23, "split": "temporal", "neg": "uniform", "valid_gnn_auc": 0.5469, "leaky_gnn_auc": 0.5234, "delta": -0.0234, "valid_aa_auc": 0.875, "n_pos": 8, "n_mp": 12},
+    {"seed": 23, "split": "random", "neg": "hard", "valid_gnn_auc": 0.5, "leaky_gnn_auc": 0.62, "delta": 0.12, "valid_aa_auc": 0.32, "n_pos": 5, "n_mp": 15},
+    {"seed": 23, "split": "random", "neg": "uniform", "valid_gnn_auc": 0.58, "leaky_gnn_auc": 0.7, "delta": 0.12, "valid_aa_auc": 0.76, "n_pos": 5, "n_mp": 15}
+  ]
 }

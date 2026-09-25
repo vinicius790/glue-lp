@@ -1,9 +1,13 @@
 from __future__ import annotations
+
 import math
+
 import numpy as np
+
 from .splits import build_adj
 
-def _score_pairs(n, mp, pairs, kind):
+
+def _score_pairs(n: int, mp: np.ndarray, pairs: np.ndarray, kind: str) -> np.ndarray:
     adj = build_adj(n, mp)
     deg = [len(s) for s in adj]
     out = np.zeros(len(pairs), dtype=np.float64)
@@ -25,11 +29,14 @@ def _score_pairs(n, mp, pairs, kind):
             raise ValueError(kind)
     return out
 
-def scores_cn(n, mp, pairs):
+
+def scores_cn(n: int, mp: np.ndarray, pairs: np.ndarray) -> np.ndarray:
     return _score_pairs(n, mp, pairs, "cn")
 
-def scores_aa(n, mp, pairs):
+
+def scores_aa(n: int, mp: np.ndarray, pairs: np.ndarray) -> np.ndarray:
     return _score_pairs(n, mp, pairs, "aa")
 
-def scores_pa(n, mp, pairs):
+
+def scores_pa(n: int, mp: np.ndarray, pairs: np.ndarray) -> np.ndarray:
     return _score_pairs(n, mp, pairs, "pa")

@@ -1,3 +1,30 @@
 line-length = 100
 target-version = "py311"
-src = ["src", "tests", "scripts"]
+src = ["src", "tests", "scripts", "examples"]
+
+exclude = [
+  ".venv",
+  "__pycache__",
+  ".pytest_cache",
+  "experiments",
+  "scripts/_gen",
+]
+
+[lint]
+select = [
+  "E",   # pycodestyle errors
+  "F",   # pyflakes
+  "I",   # isort
+  "UP",  # pyupgrade
+  "B",   # bugbear (subset via defaults)
+  "W",   # pycodestyle warnings
+]
+ignore = [
+  "E501",  # line length enforced by formatter/editor; keep soft
+  "B905",  # zip(strict=) — py311+ nicety, not required here
+]
+
+[lint.per-file-ignores]
+"scripts/*" = ["E402"]   # sys.path insert before glue_lp imports
+"examples/*" = ["E402"]
+"tests/*" = ["E402"]
