@@ -6,7 +6,7 @@ Protocolo **executável** para avaliar predição de ligações com GNN **sem** 
 
 **Invariante (modo `valid`):** \(Q^{+} \cap E_{mp} = \emptyset\). Se a interseção não for vazia, o harness levanta `AssertionError` — não é só texto no paper.
 
-Este repositório é o pacote **GLUE-LP-revisado**: manuscrito Design Science / IMRaD (~10 221 palavras / ~22–23 páginas PDF), código Python com CLI `glue-lp`, figuras 1–9, JSONs medidos em Cora / Citeseer / Pubmed e escada sintética de vazamento L0–L4. Os AUCs e estatísticas \(t\) deste README vêm de `experiments/*.json` — **nenhuma métrica LINQS foi inventada aqui**.
+Este repositório é o pacote **GLUE-LP-revisado**: manuscrito Design Science / IMRaD (~14 400 palavras / alvo ≥28–32 páginas PDF (manuscrito expandido)), código Python com CLI `glue-lp`, figuras 1–9, JSONs medidos em Cora / Citeseer / Pubmed e escada sintética de vazamento L0–L4. Os AUCs e estatísticas \(t\) deste README vêm de `experiments/*.json` — **nenhuma métrica LINQS foi inventada aqui**.
 
 Comece por [`docs/INDEX.md`](docs/INDEX.md) se quiser o mapa completo do pacote.
 

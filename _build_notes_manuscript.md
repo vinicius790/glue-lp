@@ -24,3 +24,10 @@
 - Referências numeradas no ARTIGO: ver seção Referências (~33+ entradas distintas)
 - Menções "pré-correção": elevadas (banner + tabelas + ameaças)
 - PDF alvo 12–16+ páginas corpo: alcançado (22 pp. A4 incluindo apêndices)
+
+## Expansão densa (2026-09-25)
+- Fonte: `docs/ARTIGO.md` ~**14431** palavras (antes ~10221).
+- Alvo PDF: ≥28–32 páginas A4 após `scripts/build_manuscript.py`.
+- Conteúdo novo: §§1.3b, 4.2b–c, 5, 7.5.x, 7.6.2, 8.5, 9–11, Ap. B/C/F/I/J; disponibilidade + COI.
+- Sem alteração de `experiments/*.json`.
+- PDF páginas após rebuild: **"30"**.

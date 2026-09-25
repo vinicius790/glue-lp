@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.5.1 — manuscrito denso (2026-09-25)
+
+### Manuscrito (sem novos números experimentais)
+- Expansão substancial de `docs/ARTIGO.md` (~10 221 → ~14 431 palavras): §§5, 8–11, Apêndices B/C/F, novos I/J.
+- Novos blocos: matriz contribuição↔evidência (§1.3b); pseudocódigo do harness e da escada L (§4.2b–c); discussão Figuras 8–9 (§7.5.x); tabela de negativos com definições operacionais (§7.6.2); tabela de mitigação de ameaças (§8.5); backlog P0–P2 (§9.2); disponibilidade de dados/código + COI (§10.2–10.3).
+- Abstract/Resumo alongados só com fatos já medidos (escada L, hard-CN, degree-matched).
+- §2.6 enriquecida a partir de `RELATED_WORK.md` (citações já no pacote); FakeEdge (Dong et al., 2022) distinguido de SpotTarget (Zhu et al.).
+- `ARTIGO-COMPLETO.md` sincronizado; README de landing atualizado; PDF/DOCX regenerados.
+
+### Não alterado
+- Versão do artefato permanece **0.5.0** (`pyproject.toml` / `CITATION.cff`).
+- Nenhum valor em `experiments/*.json` foi editado.
+
+
 ## 0.5.0 — wave código / CLI / métricas (2026-09-25)
 
 ### Auditoria (2026-09-25)

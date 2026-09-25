@@ -39,7 +39,7 @@ Não é SOTA. **OGB não rodou.** Não propomos nova camada de convolução — 
 
 GLUE-LP (*Graph Link-evaluation Under Exclusion*) is a Design Science artifact that makes target-edge exclusion an unskippable invariant of link-prediction evaluation with graph neural networks: \(Q^{+} \cap E_{mp} = \emptyset\) in valid mode, enforced by an assert that aborts the run. The same evaluation set \(Q\) is scored by GCN, GraphSAGE, GAT and classical heuristics (common neighbors, Adamic–Adar, preferential attachment) under uniform, hard-CN and degree-matched negative sampling, with random, inductive-node and synthetic-temporal splits.
 
-On Cora with a fixed-epoch dense GCN (Series 1, 5 seeds) the leaky protocol adds +0.118 AUC (0.708 ± 0.020 valid vs 0.826 ± 0.019 leaky). A second series with sparse GCN and early stopping replicates the direction on Citeseer (paired \(t = 5.77\), Δ = +0.100) but is only suggestive on Cora (\(t = 2.61\), df = 4; one seed inverts). GAT on Cora yields \(t = 20.4\); Pubmed GCN (3 seeds) yields \(t = 7.75\). A synthetic leakage ladder (L1/L3/L4, 10 seeds) shows that a silent half-edge bug (L4) can inflate AUC as much as full leakage (L3), while preferential attachment is far more sensitive (Δ = +0.465) than CN/AA. No OGB runs. No new message-passing layer. All numbers come from measured `experiments/*.json`; unmeasured items are marked as proposed.
+On Cora with a fixed-epoch dense GCN (Series 1, 5 seeds) the leaky protocol adds +0.118 AUC (0.708 ± 0.020 valid vs 0.826 ± 0.019 leaky). A second series with sparse GCN and early stopping replicates the direction on Citeseer (paired \(t = 5.77\), Δ = +0.100) but is only suggestive on Cora (\(t = 2.61\), df = 4; one seed inverts). GAT on Cora yields \(t = 20.4\); Pubmed GCN (3 seeds) yields \(t = 7.75\). A synthetic leakage ladder (L1/L3/L4, 10 seeds) shows that a silent half-edge bug (L4) can inflate AUC as much as full leakage (L3), while preferential attachment is far more sensitive (Δ = +0.465) than CN/AA. Hard-CN negatives drop GCN to 0.619 ± 0.009 and Adamic–Adar to 0.542 ± 0.016 (uniform AA was 0.720 ± 0.007), flipping the GNN↔heuristic ranking; degree-matched negatives yield GCN 0.611 ± 0.033. Ladder means: L1 0.7133 ± 0.1726, L3 0.7789 ± 0.1976, L4 0.8602 ± 0.0915; L2 remains unmeasured. Code is MIT; Planetoid/LINQS corpora are external downloads. No OGB runs. No new message-passing layer. All numbers come from measured `experiments/*.json`; unmeasured items are marked as proposed.
 
 **Keywords:** GNN; link prediction; leakage; Cora; Citeseer; Pubmed; inductive evaluation; design science; executable protocol; Adamic–Adar; GraphSAGE; GAT.
 
@@ -76,6 +76,24 @@ Enquadramos o trabalho como *Design Science Research* em engenharia de ML / sist
 3. **Evidência medida** em Cora, Citeseer e Pubmed (séries 1–2, onda 3) mais escada L1/L3/L4 e enumeração exaustiva no *tech tree* sintético — todos os números em `experiments/*.json`.
 4. **Pacote reproduzível** (JSON versionados, figuras fig1–fig9, testes pytest em CI sem GPU, manuscrito DOCX/PDF gerado por script, API opcional somente leitura).
 
+
+### 1.3b Matriz contribuição ↔ evidência
+
+| Contribuição | Seção | Artefato | Status medido |
+|---|---|---|---|
+| Invariante \(Q^{+} \cap E_{mp} = \emptyset\) + modo leaky | §3–4 | `protocol.assert_no_leakage`, `split_graph` | **assert + testes** (CI) |
+| Harness único GNN + CN/AA/PA no mesmo \(Q\) | §4–7 | `torch_gcn` / `torch_models` / `heuristics` / runners | **medido** (séries 1–2, onda 3, escada) |
+| Políticas de negativos (uniforme / hard-CN / degree-matched) | §4.4, §7.1, §7.6.2 | `splits.sample_*` | **medido** (Cora; H3) |
+| Splits aleatório / indutivo / temporal sintético | §4.3, §6–7 | `splits` + `protocol.split_graph` | **medido** (indutivo Cora; temporal tech tree) |
+| Escada L1/L3/L4 + meia-aresta | §3.3, §7.4, Fig. 9 | `scripts/leakage_ladder.py` | **medido** (sintético; L2 **não**) |
+| Evidência Δ leaky−valid em LINQS | §7.1–7.3 | `experiments/*.json` | **[pré-correção ES]** |
+| Pacote reproduzível (JSON, figuras, CI, DOCX/PDF) | §5, §10, Ap. B–C | repo `glue_lp` v0.5.0 | **artefato entregue** |
+| OGB Hits@K / splits oficiais | — | `integrations/ogb_loader.py` | **não rodou** |
+| Confirmação P-PA (Δ PA≫CN/AA) em LINQS | §1.4 H2 | — | **proposto / não medido** |
+| Re-AUC pós-correção ES / SAGE pós-`F.normalize` | §8–9, Ap. A | código já corrigido | **não re-medido** |
+
+A matriz separa *claim do artefato* (assert que quebra) de *claim do fenômeno* (magnitude do Δ). Só a primeira está fechada hoje; a segunda permanece sob o banner **[pré-correção ES]** para LINQS.
+
 ### 1.4 Hipóteses (honestas)
 
 Formulamos hipóteses *a priori* e reportamos o que os dados medidos permitem concluir — inclusive quando a conclusão é *sugestiva* e não *definitiva*.
@@ -88,7 +106,7 @@ Não afirmamos que hidden=32 é ótimo. Não afirmamos que GAT de uma cabeça re
 
 ### 1.5 Organização do manuscrito
 
-A Seção 2 posiciona o trabalho frente à literatura clássica e moderna. A Seção 3 formaliza LP, leakage e a escada L0–L4. A Seção 4 descreve o artefato de Design Science. A Seção 5 detalha a *stack* tecnológica (medido vs proposto). A Seção 6 dá o protocolo experimental completo. A Seção 7 reporta e discute todos os resultados medidos. As Seções 8–11 cobrem ameaças à validade, limitações, reprodutibilidade e conclusão. Apêndices trazem revisão técnica, mapa de módulos, tabelas JSON, glossário e a ameaça do *bug* histórico de *early stopping*.
+A Seção 2 posiciona o trabalho frente à literatura clássica e moderna. A Seção 3 formaliza LP, leakage e a escada L0–L4. A Seção 4 descreve o artefato de Design Science (incluindo pseudocódigo do harness e da escada). A Seção 5 detalha a *stack* tecnológica (medido vs proposto, com caminhos de módulo). A Seção 6 dá o protocolo experimental completo. A Seção 7 reporta e discute todos os resultados medidos (incluindo Figuras 8–9). As Seções 8–11 cobrem ameaças à validade (com tabela de mitigação), limitações e backlog priorizado, reprodutibilidade / disponibilidade de dados e código, conflito de interesses, e conclusão. Apêndices A–H trazem revisão técnica, mapa de módulos, JSON, Design Science, formalismo, glossário, desenho experimental e tabelas por seed; o Apêndice I condensa o checklist de submissão; o Apêndice J recapitula o corpus Planetoid/LINQS.
 
 ## 2. Trabalhos relacionados
 
@@ -122,7 +140,12 @@ Em relação a HeaRT e SpotTarget, somos mais estreitos em *benchmark* (LINQS + 
 
 ### 2.6 Surveys, pitfalls de avaliação e LP-GNN recentes
 
-Lü e Zhou (2011) sistematizam *link prediction* em redes complexas (índices de similaridade, paths, máxima verossimilhança). Shchur et al. (2018) e Errica et al. (2020) documentam *pitfalls* de avaliação de GNN (splits, seeds, vazamentos de protocolo). Dwivedi et al. (2023, JMLR) propõem *benchmarks* controlados de GNN. Kapoor e Narayanan (2023) generalizam a crise de *leakage* em ciência baseada em ML. Yang, Cohen e Salakhutdinov (2016, Planetoid) popularizam embeddings semi-supervisionados nos grafos LINQS. Grover e Leskovec (2016, node2vec) e He et al. (2020, LightGCN) ilustram a linha embedding/recomendação. Yun et al. (2021, Neo-GNN), Chamberlain et al. (2023, BUDDY) e Wang, Yang e Zhang (2024, NCNC) avançam LP-GNN estrutural — **fora do núcleo medido** aqui (proposto como *baseline* futuro). Fey e Lenssen (2019, PyG) são a *stack* de fato da comunidade; nosso núcleo medido é PyTorch puro + stubs. Pineau et al. (2021) e o checklist ACM/NeurIPS informam a Seção 10. Gregor e Hevner (2013) posicionam comunicação de DSR.
+
+Lü e Zhou (2011) sistematizam *link prediction* em redes complexas (índices de similaridade, *paths*, máxima verossimilhança) e posicionam CN/AA/RA/Katz como família de *baselines* — exatamente a família que GLUE-LP trata como obrigatória no mesmo \(Q\). Kapoor e Narayanan (2023, *Patterns*) taxonomizam *leakage* na ciência baseada em ML; *target-edge leakage* é a instância grafos-específica do mesmo gênero de contaminação treino/teste, o que reforça o *framing* ético de não reportar o modo leaky como *headline*. Shchur et al. (2018) e Errica et al. (2020) documentam *pitfalls* de avaliação de GNN (splits, seeds, protocolo complacente): a mensagem transferível é que *rankings* colapsam sem protocolo fixo — o mesmo princípio aplica-se a LP com/sem exclusão de alvo. Dwivedi et al. (2023, JMLR) propõem *benchmarks* controlados de blocos GNN; GLUE-LP **não** é *leaderboard* de expressividade, e sim harness de regime de avaliação. Pineau et al. (2021, JMLR) informam o checklist da Seção 10 (código + dados + hiperparâmetros + seeds).
+
+Yang, Cohen e Salakhutdinov (2016, Planetoid) popularizam embeddings semi-supervisionados nos grafos LINQS; tutoriais Planetoid/PyG de *link prediction* frequentemente reutilizam `edge_index` completo no encoder — motivação prática do assert. Kipf e Welling (2016, VGAE/GAE) são a **referência metodológica** do harness medido: encoder GCN + decoder produto interno, AUC/AP em Cora/Citeseer; medimos o efeito de incluir/excluir a aresta-alvo em \(E_{mp}\) sob esse *template* (versão determinística, sem termo KL). Fey e Lenssen (2019, PyG) são a *stack* de fato da comunidade; SpotTarget (Zhu et al., 2024) nota que, por anos, exemplos/loaders não excluíam arestas-alvo no *mini-batch* — nosso núcleo medido permanece PyTorch puro, com stubs em `integrations/`.
+
+Dong et al. (2022, FakeEdge, arXiv:2211.15899) — trabalho **distinto** de SpotTarget — estudam *dataset shift* treino/teste por presença/ausência da aresta-alvo em métodos de subgrafo (linha SEAL). É possível origem de citações errôneas “Dong et al. (SpotTarget)” em rascunhos anteriores: **SpotTarget = Zhu et al. (WSDM 2024)**; FakeEdge = Dong et al. (2022). Grover e Leskovec (2016, node2vec) e He et al. (2020, LightGCN) ilustram a linha embedding/recomendação (**não medidos** aqui). Yun et al. (2021, Neo-GNN), Chamberlain et al. (2023, BUDDY) e Wang, Yang e Zhang (2024, NCNC) avançam LP-GNN estrutural — **fora do núcleo medido** (proposto como *baseline* futuro). Gregor e Hevner (2013) posicionam comunicação de DSR.
 
 ### 2.7 Tabela de diferenciação (SpotTarget / HeaRT / OGB / GLUE-LP)
 
@@ -209,6 +232,62 @@ Derivamos requisitos a partir do problema (Seção 1) e do enquadramento Hevner/
 
 A máscara não é comentário: `mp_edges` é argumento de `train_encoder` / `split_graph`. `assert_no_leakage` quebra o processo antes do treino. Testes em `tests/test_invariante.py` e `tests/test_leakage_ladder_smoke.py` cobrem o caminho feliz e o caminho que deve falhar.
 
+
+### 4.2b Pseudocódigo do harness experimental
+
+A célula experimental que gera um JSON medido segue o algoritmo abaixo. Nomes de funções/módulos são os reais de `src/glue_lp/`.
+
+```
+Algoritmo HARNESS-CÉLULA (corpus, seed, mode ∈ {valid, leaky}, encoder, neg_policy)
+  1. (X, E) ← data_citation / data_cora loaders  # ou graph.crafting_graph()
+  2. (E_train, E_val, E_test) ← splits.random_edge_split(...)
+       # ou splits.inductive_node_split(...); ou protocol.split_graph(temporal)
+  3. Q+ ← E_test
+  4. se mode = valid:
+       Emp ← E_train
+       protocol.assert_no_leakage(Emp, Q+)          # AssertionError se falhar
+     senão:  # leaky (controle)
+       Emp ← E_train ∪ E_val ∪ E_test
+  5. Q- ← splits.sample_uniform_negatives | sample_hard_negatives
+            | sample_degree_matched  (neg_policy, mesmo Q+)
+  6. Q ← Q+ ∪ Q-
+  7. se encoder = gcn_denso:
+       z ← torch_gcn.train_gcn(X, Emp, …)           # série 1
+     senão:
+       z ← torch_models.train_encoder(X, Emp, …, kind∈{gcn,sage,gat})
+  8. s_GNN(u,v) ← ⟨z_u, z_v⟩                         # pair_scores / score_numpy
+  9. s_CN, s_AA, s_PA ← heuristics.scores_cn|aa|pa(n, Emp, Q)
+ 10. AUC ← metrics.roc_auc (empate = ½); registrar AP/Hits/MRR se série 1
+ 11. escrever experiments/*.json  (não editar médias à mão)
+```
+
+O passo 4 é o que separa o artefato de um README: sem o assert, um *notebook* pode silenciar o vazamento; com o assert, o CI fica vermelho e o JSON não é escrito sob regime `valid` contaminado.
+
+### 4.2c Pseudocódigo da escada L1 / L3 / L4
+
+Alinhado a `scripts/leakage_ladder.py` (`run_ladder`, `run_exhaustive`) e a `protocol.split_graph`:
+
+```
+Algoritmo ESCADA-L (seed; split=temporal; negatives=hard)  # tech tree n=12
+  1. (V, E) ← graph.crafting_graph()                  # 12 nós, 20 arestas
+  2. sp_valid ← protocol.split_graph(..., mode="valid", seed)
+  3. sp_leaky ← protocol.split_graph(..., mode="leaky", seed)
+  4. Q ← sp_valid.positives ∪ sp_valid.negatives      # mesmo Q nos degraus
+  5. L1: Emp ← sp_valid.mp_edges                      # só treino
+       escorear GNN (models.embed_gcn) + AA/CN/PA; AUC
+  6. L3: Emp ← sp_leaky.mp_edges                      # treino ∪ positivos
+       escorear idem; AUC
+  7. L4 (meia-aresta): para cada positivo (u,v) ∈ Q+,
+       Zh ← models.embed_gcn_directed_half(Emp_L1, u, v)
+       score_pos ← ⟨Zh_u, Zh_v⟩; negativos com Emp_L1
+       AUC_L4 ← roc_auc(y, scores)
+       # AA/CN/PA sob L4: coincidem com L1 em 1ª ordem (nota no JSON)
+  8. Δ ← AUC_L3 − AUC_L1  (por scorer); agregar mean/sd em 10 seeds
+  9. L2 (Emp = E_train ∪ E_val): PROPOSTO / NÃO MEDIDO neste JSON
+```
+
+A enumeração exaustiva (`run_exhaustive`) avalia todos os pares \(\binom{12}{2}\) exceto arestas de treino — útil porque \(n=12\) cabe em memória e remove a aleatoriedade da amostragem de negativos. Os números canônicos estão em `leakage_ladder_resumo.json` (L1 0.7133 ± 0.1726; L3 0.7789 ± 0.1976; L4 0.8602 ± 0.0915; Δ PA = +0.4648).
+
 ### 4.3 Splits
 
 **Aleatório (transdutivo de arestas).** Holdout 10% teste / 5% validação / resto treino, seed no gerador NumPy (`ProtocolConfig.test_frac=0.10`, `val_frac=0.05`). Usado nas séries 1–2 e onda 3 (exceto indutivo).
@@ -249,46 +328,59 @@ Seguindo Hevner, avaliamos o artefato por: **fidelidade** (o assert reproduz a d
 
 ## 5. Stack tecnológico detalhado
 
-Esta seção separa honestamente o que **rodou** nos JSON medidos do que está apenas proposto. Detalhe operacional adicional em `docs/TECNOLOGIAS.md` e `docs/ARQUITETURA.md`.
+
+Esta seção separa honestamente o que **rodou** nos JSON medidos do que está apenas proposto. Detalhe operacional adicional em `docs/TECNOLOGIAS.md` e `docs/ARQUITETURA.md`. Critério: se não há entrada correspondente em `experiments/*.json` (ou teste CI que exerce o módulo), o item é **proposto / não medido** — mesmo que o arquivo `.py` exista.
 
 ### 5.1 O que de fato rodou
 
-| Camada | Tecnologia | Papel | Status |
+| Camada | Tecnologia | Caminho / módulo | Papel | Status |
+|---|---|---|---|---|
+| Linguagem | Python ≥ 3.11 | `src/glue_lp/` | pacote `glue_lp` | **medido** |
+| Domínio / config | dataclasses | `types.py`, `config.py` | `TrainConfig`, `ProtocolConfig`, L0–L4 | **medido** |
+| Grafo / RNG | NumPy ≥ 1.26 | `graph.py`, `rng.py`, `models.py` | tech tree, Mulberry32 | **medido** |
+| Protocolo | assert + split | `protocol.py`, `splits.py` | `assert_no_leakage`, holdout, indutivo, negativos | **medido** |
+| Dados LINQS | loaders locais | `data_citation.py`, `data_cora.py` | Cora/Citeseer/Pubmed a partir de `data/` | **medido** (séries) |
+| Tensor / SGD | PyTorch ≥ 2.1 | `torch_gcn.py`, `torch_models.py` | GCN denso/esparso, SAGE, GAT, Adam, BCE, `index_add_` | **medido** |
+| Heurísticas | NumPy | `heuristics.py` | CN / AA / PA no mesmo \(Q\) | **medido** |
+| Métricas / stats | NumPy | `metrics.py`, `stats.py` | AUC/AP/Hits/MRR; *t*, *d_z*, bootstrap, Holm | **medido** (AUC headline) |
+| Runners | scripts | `scripts/run_e1_e4.py`, `run_extended.py`, `run_wave3.py`, `leakage_ladder.py` | geradores dos JSON | **medido** |
+| Export / CLI | — | `export.py`, `cli.py`, `run.py` | reler summaries; `glue-lp` | **medido** (CLI) |
+| Teste | pytest | `tests/` | invariante, AUC, types, export, stubs | **medido** (CI) |
+| Figura | matplotlib | `scripts/make_figures.py` → `figures/fig1`–`fig9` | artefato visual | **medido** |
+| Manuscrito | python-docx + LibreOffice | `scripts/build_manuscript.py` | DOCX → PDF | **medido** (build) |
+| Lint | ruff | `ruff.toml` | estilo opcional | suporte |
+| CI | GitHub Actions | `.github/workflows/` | `pytest` em push | suporte |
+| API | FastAPI + uvicorn | `api.py`, `scripts/serve_protocol.py` | health/check/experiments (somente leitura) | opcional |
+
+### 5.2 Proposto / não medido (com caminho)
+
+| Tecnologia | Caminho | Intenção | Status |
 |---|---|---|---|
-| Linguagem | Python ≥ 3.11 | pacote `glue_lp` | **medido** |
-| Tabular / RNG | NumPy ≥ 1.26 | splits, features, GNN sintético | **medido** |
-| Tensor / SGD | PyTorch ≥ 2.1 | GCN/SAGE/GAT, Adam, BCE, `index_add_` | **medido** (séries 1–2, onda 3) |
-| Teste | pytest | invariante, AUC, types, export, stubs | **medido** (CI) |
-| Figura | matplotlib | fig1–fig9 | **medido** (artefato) |
-| Manuscrito | python-docx + LibreOffice | DOCX → PDF | **medido** (build) |
-| Lint | ruff | estilo opcional | suporte |
-| CI | GitHub Actions | `pytest` em push | suporte |
-| API | FastAPI + uvicorn | health/check/experiments (somente leitura) | opcional |
-
-### 5.2 Proposto / não medido
-
-| Tecnologia | Intenção | Status |
-|---|---|---|
-| PyTorch Geometric (PyG) | adapter Planetoid → protocolo | stub `integrations/pyg_adapter.py` |
-| DGL | segundo ABI de convolução | stub `integrations/dgl_note.py` |
-| OGB (`ogbl-*`) | Hits@K oficial, splits oficiais | stub — **OGB não rodou** |
-| NetworkX | análise exploratória | proposto |
-| Optuna | HPO de hidden/lr/dropout | proposto |
-| Weights & Biases | tracking remoto | proposto |
-| GAT multi-head (4–8) | atenção plena | proposto (medido: 1 cabeça) |
-| GraphSAGE amostrado | S vizinhos/camada | proposto (medido: média plena) |
-| SEAL / enclosing subgraphs | decoder estrutural | proposto |
-| CUDA obrigatória | treino GPU | não exigido (Cora CPU ok) |
+| PyTorch Geometric (PyG) | `integrations/pyg_adapter.py` | adapter Planetoid → protocolo | stub |
+| DGL | `integrations/dgl_note.py` | segundo ABI de convolução | stub |
+| OGB (`ogbl-*`) | `integrations/ogb_loader.py` | Hits@K oficial, splits oficiais | stub — **OGB não rodou** |
+| NetworkX | `graph_analysis.py` (parcial) | análise exploratória | proposto |
+| Optuna | — | HPO de hidden/lr/dropout | proposto |
+| Weights & Biases | — | tracking remoto | proposto |
+| GAT multi-head (4–8) | `torch_models.GAT` (extensão) | atenção plena | proposto (medido: 1 cabeça) |
+| GraphSAGE amostrado | `torch_models.GraphSAGE` | S vizinhos/camada | proposto (medido: média plena) |
+| SEAL / enclosing subgraphs | — | decoder estrutural | proposto |
+| CUDA obrigatória | — | treino GPU | não exigido (Cora CPU ok) |
+| L2 na escada | `leakage_ladder.py` | Emp = train∪val | **não medido** no JSON |
+| SAGE pós-`F.normalize` | `torch_models` (código já tem normalize) | re-AUC Cora | **não re-medido** (0,577 = pré) |
 
 ### 5.3 Complexidade e memória
 
-GCN esparso por época: \(O((m+n)h + n h d)\) com implementação por `index_add_`. GCN denso (série 1) materializa \(A \in \mathbb{R}^{n \times n}\) — viável em Cora (\(n=2708\)), irresponsável em Pubmed (\(n^2 \approx 4\cdot 10^8\)). Por isso Pubmed só entra na onda 3 com encoder esparso. O *tech tree* (\(n=12\) ) cabe em NumPy puro e não depende de PyTorch para a escada.
+GCN esparso por época: \(O((m+n)h + n h d)\) com implementação por `index_add_` em `torch_models.SparseGCN`. GCN denso (série 1, `torch_gcn.normalize_adj`) materializa \(A \in \mathbb{R}^{n \times n}\) — viável em Cora (\(n=2708\)), irresponsável em Pubmed (\(n^2 \approx 4\cdot 10^8\)). Por isso Pubmed só entra na onda 3 com encoder esparso. O *tech tree* (\(n=12\)) cabe em NumPy puro (`models.embed_gcn`) e não depende de PyTorch para a escada. Heurísticas CN/AA/PA sobre \(Q\) são \(O(|Q|\cdot \bar{d})\) com adjacência em conjuntos — baratas frente ao treino GNN em Cora.
 
 ### 5.4 Hardware (honestidade)
 
-Os JSON medidos registram tempos de parede aproximados da série 2 (~90.0 s no log agregado) e da onda 3 (~70.5 s). Não reivindicamos *benchmark* de hardware: as máquinas de medição originais foram ambientes CPU/GPU modestos de desenvolvimento. O CI público roda só testes leves (sem retreinar Cora). Reproduzir as tabelas completas exige PyTorch e os dados LINQS em `data/` (ver `data/LINQS.md`).
+Os JSON medidos registram tempos de parede aproximados da série 2 (~90.0 s no log agregado) e da onda 3 (~70.5 s). Não reivindicamos *benchmark* de hardware: as máquinas de medição originais foram ambientes CPU/GPU modestos de desenvolvimento. O CI público roda só testes leves (sem retreinar Cora). Reproduzir as tabelas completas exige PyTorch e os dados LINQS em `data/` (ver `data/LINQS.md` e a Seção 10.2).
 
----
+### 5.5 Fronteira medido ↔ proposto (resumo operacional)
+
+Tudo que alimenta uma célula de tabela deste manuscrito passou por um runner em `scripts/` e deixou JSON em `experiments/`. Stubs em `integrations/` existem para sinalizar *roadmap* de ABI, não para inflar a *stack* medida. Quem clonar o repo e rodar `make test && make protocol && make verify` exercita o artefato **sem** GPU e **sem** retreinar LINQS — barreira mínima de verificação distinta da barreira de re-medição completa (Pineau et al., 2021).
+
 
 ## 6. Protocolo experimental completo
 
@@ -427,7 +519,29 @@ Achado transferível de engenharia: um bug de meia-aresta (L4) pode inflar tanto
 
 ### 7.5 Figuras
 
-Figuras 1–7 em `figures/`: pipeline (fig1), protocolo valid/leaky (fig2), tech tree (fig3), barras Cora série 1 (fig4), Cora×Citeseer (fig5), dispersão por seed (fig6), três corpora (fig7). Incluídas no DOCX/PDF.
+
+Figuras 1–9 em `figures/`, inseridas no DOCX/PDF pelo `scripts/build_manuscript.py`:
+
+| Figura | Arquivo | O que mostra (sem inventar números) |
+|---|---|---|
+| 1 | `fig1_pipeline.png` | Pipeline: dados → split → assert → encoder → mesmo \(Q\) |
+| 2 | `fig2_protocolo.png` | Protocolo valid vs leaky (\(E_{mp}\)) |
+| 3 | `fig3_techtree.png` | Tech tree sintético (domínio ilustrativo) |
+| 4 | `fig4_cora_auc.png` | Barras AUC Cora — série 1 **[pré-correção ES]** |
+| 5 | `fig5_cora_citeseer.png` | Cora × Citeseer — série 2 **[pré-correção ES]** |
+| 6 | `fig6_seeds.png` | Dispersão por seed (valid vs leaky) |
+| 7 | `fig7_tres_corpora.png` | Três corpora LINQS **[pré-correção ES]** |
+| 8 | `fig8_arquitetura.png` | Arquitetura de módulos do artefato `glue_lp` |
+| 9 | `fig9_escada_vazamento.png` | Escada de vazamento L1 / L3 / L4 (sintético) |
+
+#### 7.5.1 Discussão da Figura 8 — arquitetura do artefato
+
+A Figura 8 organiza o pacote em camadas: (i) **dados** (`data_citation` / `data_cora` + `data/LINQS.md`); (ii) **protocolo** (`protocol`, `splits`, `config`/`types`) onde mora o assert; (iii) **encoders** (`torch_gcn`, `torch_models`) e **heurísticas** (`heuristics`) que consomem o mesmo \(E_{mp}\) e o mesmo \(Q\); (iv) **métricas/stats** (`metrics`, `stats`); (v) **runners** (`scripts/run_*.py`, `leakage_ladder.py`) que materializam JSON; (vi) **export/CLI/API** para reler *headlines* sem retreinar; (vii) **integrations/** como stubs explícitos (PyG/DGL/OGB). A figura não é um diagrama de *SOTA* — é o mapa do que o CI e o harness realmente exercitam. Quem implementa um novo encoder deve plugá-lo abaixo do assert, não ao lado dele.
+
+#### 7.5.2 Discussão da Figura 9 — escada de vazamento
+
+A Figura 9 visualiza os degraus L1 (só treino), L3 (treino ∪ positivos de avaliação) e L4 (meia-aresta dirigida) no *tech tree* de 12 nós, com barras agregadas das 10 seeds de `leakage_ladder_resumo.json`. A leitura qualitativa que a figura sustenta — e que o texto da Seção 7.4 já numerou — é: (a) L3 eleva a AUC do GNN relativamente a L1; (b) L4 pode igualar ou superar L3 com menor desvio-padrão neste grafo; (c) o painel de heurísticas (quando presente na figura / tabela associada) mostra PA com Δ(L3−L1) muito maior que CN/AA. A figura **não** contém L2: Emp = train∪val permanece proposto. Tampouco extrapolamos os valores do sintético para Cora/Citeseer/Pubmed sob a mesma escada — isso seria inventar evidência.
+
 
 ### 7.6 Discussão profunda
 
@@ -439,7 +553,17 @@ Além disso, todos os *t* LINQS acima são {PRE}. Um re-run com ES simétrico po
 
 #### 7.6.2 Negativos, ranking e honestidade de Q
 
-Quem publica só o uniforme escolhe o Q mais complacente (GCN ~0.71, AA ~0.72). Hard-CN e degree-matched caem ambos ~0,61–0,62 e invertem a vantagem GNN↔heurística. HeaRT (Li et al., 2023) argumenta o mesmo em escala de *benchmark*; nós o tornamos célula obrigatória do harness.
+
+Três políticas operacionais (implementação em `splits.py`) foram medidas na série 1 / onda 3 em Cora, sempre com o **mesmo** \(Q^{+}\) e o mesmo encoder quando a célula compara GNN↔heurística:
+
+| Política | Definição operacional | AUC medida (Cora, válido) | Leitura |
+|---|---|---|---|
+| Uniforme 1:1 | 1 negativo / positivo, amostrado uniformemente entre não-arestas | GCN 0.708 ± 0.020; AA 0.720 ± 0.007 | célula mais complacente; AA ≈ GCN |
+| Hard-CN | negativos entre pares de alto *common neighbors* (`sample_hard_negatives`) | GCN 0.619 ± 0.009; AA 0.542 ± 0.016 | ranking **inverte**: GCN > AA |
+| Degree-matched | para \((u,v)\), amostra \(w\) com \(\lvert\deg(w)-\deg(v)\rvert\le 2\) (`sample_degree_matched`) | GCN 0.611 ± 0.033 | alinhado empiricamente ao hard-CN |
+
+Por que o ranking vira? No uniforme, muitos negativos têm CN = 0 e AA = 0; a AUC Mann–Whitney com empate = ½ ainda favorece AA porque empates em zero não inflam o numerador, e a massa de positivos com vizinhos comuns é discriminável. No hard-CN, os negativos **também** têm vizinhos comuns altos: o índice de 2003 perde resolução exatamente onde o GCN, usando atributos bag-of-words, ainda separa. Degree-matched remove o atalho trivial de grau (positivos ligam nós de grau alto a grau alto) sem depender de CN — e a AUC cai para a mesma faixa do hard (~0,61). Quem publica só o uniforme escolhe o \(Q\) mais complacente e pode omitir que, sob hard, a “vitória” do GNN sobre AA é outra história (ou o contrário). HeaRT (Li et al., 2023) argumenta o mesmo em escala de *benchmark*; nós tornamos as três políticas células de primeira classe do harness (requisito R4).
+
 
 #### 7.6.3 L4 como bug de engenharia, não nuance teórica
 
@@ -467,74 +591,136 @@ Cohen's *d_z* e IC bootstrap acima foram computados **na discussão** a partir d
 
 ## 8. Ameaças à validade
 
-Seguimos a tipología clássica de validade em engenharia de software empírica (Wohlin et al.; cf. também ameaças em avaliação de GNN: Shchur et al., 2018; Errica/Errica et al., 2020; Kapoor & Narayanan, 2023).
+
+Seguimos a tipología clássica de validade em engenharia de software empírica (Wohlin et al., 2012; cf. também ameaças em avaliação de GNN: Shchur et al., 2018; Errica et al., 2020; Kapoor & Narayanan, 2023). O detalhe operacional está em `docs/AMEACAS_VALIDADE.md`; abaixo, a versão do manuscrito.
 
 ### 8.1 Validade de construto
 
-AUC 1:1 ≠ Hits@50 OGB. AP/Hits/MRR no JSON da série 1 não autorizam equivalência a *leaderboards* OGB. O construto "protocolo sem vazamento" é operacionalizado pelo assert — forte para o atalho estrutural, incompleto para vazamentos via HPO no teste ou via vazamento de features.
+AUC 1:1 ≠ Hits@50 OGB. AP/Hits/MRR no JSON da série 1 não autorizam equivalência a *leaderboards* OGB. O construto "protocolo sem vazamento" é operacionalizado pelo assert \(Q^{+} \cap E_{mp} = \emptyset\) — forte para o atalho estrutural de aresta-alvo, incompleto para vazamentos via HPO no conjunto de teste, via *early stopping* no teste, ou via vazamento de *features* derivadas do rótulo. A escada L4 mostra ainda que "ausência do par não ordenado em Emp" não esgota meia-aresta dirigida — o construto precisa do complemento de simetria.
 
 ### 8.2 Validade interna — ameaça principal: pré-correção do ES
 
 **Ameaça dominante.** Todos os AUC/*t* de Cora, Citeseer e Pubmed são **[pré-correção ES]**: o *early stopping* simétrico em `train_encoder` foi corrigido no código *depois* dessas medições (score de validação morto / assimetria valid vs leaky). O assert de exclusão já existia; o critério de parada, não. Isso é ameaça de validade **interna**, não nota de rodapé. Mitigação declarada: (i) banner no topo do manuscrito; (ii) coluna/etiqueta **[pré-correção ES]** em toda tabela LINQS; (iii) re-run completo = P0 de trabalho futuro; (iv) escada sintética NumPy permanece como evidência independente do *bug*.
 
-Outras ameaças internas: 5 seeds (3 no Pubmed); seed 4 de Cora inverte na série 2; hidden=32 fixo; GAT 1 cabeça; SAGE sem amostragem e sem re-AUC pós-`F.normalize`.
+Outras ameaças internas: 5 seeds (3 no Pubmed); seed 4 de Cora inverte na série 2; hidden=32 fixo; GAT 1 cabeça; SAGE sem amostragem e sem re-AUC pós-`F.normalize`; hiperparâmetros não pré-registrados formalmente (embora congelados em `TrainConfig`).
 
 ### 8.3 Validade externa
 
-Só LINQS + tech tree 12 nós. Sem redes bipartidas de recomendação, sem OGB (`ogbl-*`), sem grafos temporais reais com *timestamps* de aresta, sem SEAL/Neo-GNN/BUDDY/NCNC como *baselines* aprendidos. A transferência do achado L4 para grafos grandes é hipótese de engenharia, não fato medido em LINQS.
+Só LINQS + tech tree 12 nós. Sem redes bipartidas de recomendação, sem OGB (`ogbl-*`), sem grafos temporais reais com *timestamps* de aresta, sem SEAL/Neo-GNN/BUDDY/NCNC como *baselines* aprendidos. A transferência do achado L4 para grafos grandes é hipótese de engenharia, não fato medido em LINQS. Cora/Citeseer/Pubmed são grafos de citação homogêneos com bag-of-words — não generalizam automaticamente a conhecimento, moléculas ou redes sociais densas.
 
 ### 8.4 Validade de conclusão estatística
 
-Com gl=4, Cora ES (*t*=2.61) não rejeita H0 a 5%. Reportar "significativo em Cora ES" seria falso. Citeseer (*t*=5.77), série 1, GAT e Pubmed (gl=2, *t*=7.75) rejeitam no limiar clássico *não corrigido* por multiplicidade. Correção de Holm: disponível, não aplicada às tabelas históricas. n_seeds ≥ 10–30 pós-re-run é meta, não realidade atual.
+Com gl=4, Cora ES (*t*=2.61) não rejeita H0 a 5%. Reportar "significativo em Cora ES" seria falso. Citeseer (*t*=5.77), série 1, GAT e Pubmed (gl=2, *t*=7.75) rejeitam no limiar clássico *não corrigido* por multiplicidade. Correção de Holm: disponível em `stats.py`, não aplicada às tabelas históricas. n_seeds ≥ 10–30 pós-re-run é meta, não realidade atual. *d_z* e IC bootstrap na discussão foram derivados dos vetores por seed já no JSON — sem retreinar.
 
----
+### 8.5 Tabela de mitigação (resumo)
+
+| Ameaça | Tipo | Mitigação já aplicada | Mitigação pendente |
+|---|---|---|---|
+| ES assimétrico nas medições LINQS | interna | banner + etiqueta **[pré-correção ES]**; código corrigido | re-run P0 (`ROTEIRO_REEXECUCAO.md`) |
+| Seed 4 inverte (Cora série 2) | interna / conclusão | reportada no texto e Ap. H; linguagem "sugestiva" | mais seeds no re-run |
+| AUC 1:1 ≠ Hits@K OGB | construto | declaração explícita; OGB marcado não rodou | stub → execução `ogbl-*` |
+| L4 meia-aresta | interna / construto | escada sintética medida; nota no JSON | re-medir L4 em LINQS |
+| Só Planetoid | externa | tech tree + 3 corpora; honestidade no texto | OGB, bipartidos, temporal real |
+| Multiplicidade de testes | conclusão | Holm disponível, não aplicado *post hoc* | Holm pré-registrado no re-run |
+| SAGE 0,577 pré-normalize | interna / reporte | não promover como pós-normalize | re-AUC pós-`F.normalize` |
+| Autores placeholder | comunicação | placeholders explícitos; sem inventar nomes | preencher `CITATION.cff` |
+
 
 ## 9. Limitações e trabalho futuro
 
+
 ### 9.1 Limitações (estado atual)
 
-1. **P0 — Re-run LINQS pós-correção ES.** Sem isso, claims quantitativos de Cora/Citeseer/Pubmed permanecem pré-correção.
-2. **P0 — SAGE pós-`F.normalize`.** A AUC 0,577 é pré-normalize; não promover.
-3. **P0 — H2/P-PA em LINQS.** Confirmada só no sintético.
-4. **P1 — OGB Hits@K / splits oficiais.** Stub apenas; **OGB não rodou**.
-5. **P1 — L2 na escada; GAT multi-head; SAGE amostrado; decoder MLP; SEAL.**
-6. **P2 — Adapters PyG/DGL; Optuna; W&B; n_seeds 30.**
-7. Placeholders de autores/afiliação; `CITATION.cff` sem inventar nomes.
+As limitações abaixo não são *disclaimer* ornamental: cada uma bloqueia um tipo de frase que o manuscrito **recusa** escrever.
 
-### 9.2 Trabalho futuro priorizado
+1. **P0 — Re-run LINQS pós-correção ES.** Todos os AUC/*t*/Δ de Cora, Citeseer e Pubmed deste PDF foram medidos sob o código anterior ao *early stopping* simétrico. Sem o re-run (`docs/ROTEIRO_REEXECUCAO.md`), claims quantitativos LINQS permanecem exploratórios sob o banner. O assert já estava presente; o critério de parada, não.
+2. **P0 — SAGE pós-`F.normalize`.** A AUC 0,577 ± 0,025 (Cora válido, série 2) é **pré-normalize**. O código atual aplica `F.normalize` L2; a re-AUC **não foi medida**. Promover 0,577 como veredito pós-normalize seria falso.
+3. **P0 — H2 / P-PA em LINQS.** A não-uniformidade Δ PA ≫ Δ CN/AA está confirmada no *tech tree* (Δ PA = +0.4648). A mesma proposição sob escada L em Cora/Citeseer/Pubmed é **proposto / não medido**.
+4. **P1 — OGB Hits@K / splits oficiais.** Existe stub `integrations/ogb_loader.py`. **OGB não rodou.** Nenhuma tabela deste manuscrito contém Hits@50/MRR OGB.
+5. **P1 — L2 na escada; GAT multi-head; SAGE amostrado; decoder MLP; SEAL.** L2 (Emp = train∪val) não entra no JSON da escada. GAT medido = 1 cabeça. SAGE medido = média plena. SEAL/enclosing subgraphs fora do núcleo.
+6. **P2 — Adapters PyG/DGL; Optuna; W&B; n_seeds 30; bipartidos; temporal real.** Roadmap de engenharia e de validade externa, não claims.
+7. **Comunicação.** Placeholders de autores/afiliação/contato; `CITATION.cff` sem inventar nomes. Homônimo GLUE (Wang et al., 2018, PLN) explicitamente desambiguado — sem relação.
+8. **Estatística.** Holm–Bonferroni e *t* em logit estão no artefato, não foram aplicados como correção formal das tabelas históricas (evitar *post hoc*). gl baixo (4; Pubmed gl=2) limita potência.
 
-Re-executar séries 1–2 e onda 3 com ES simétrico e `F.normalize` no SAGE; confirmar P-PA em Cora/Citeseer; rodar pelo menos um `ogbl-*` com Hits@K; medir L2; publicar checksums LINQS; aplicar Holm de forma *pré-registrada* na família de testes do re-run.
+### 9.2 Trabalho futuro priorizado (backlog)
 
----
+Cada item marca status **não medido** até existir JSON novo. Prioridade = bloqueio científico para submissão forte.
+
+| Pri | Item | Por que importa | Status |
+|---|---|---|---|
+| **P0** | Re-executar séries 1–2 e onda 3 com ES simétrico | ameaça interna dominante | **não medido** (código já corrigido) |
+| **P0** | Re-AUC SAGE Cora pós-`F.normalize` | não promover 0,577 | **não medido** |
+| **P0** | Confirmar P-PA (Δ PA≫CN/AA) em Cora/Citeseer sob escada L | H2 só no sintético | **não medido** |
+| **P1** | Rodar ≥1 `ogbl-*` com Hits@K / split oficial | validade externa + construto | **OGB não rodou** |
+| **P1** | Medir L2 (train∪val) na escada sintética e, se viável, em Cora | completar L0–L4 | **não medido** |
+| **P1** | GAT multi-head (4–8) em Cora no mesmo harness | atenção plena ≠ 1 cabeça | **não medido** |
+| **P1** | GraphSAGE com amostragem de vizinhos | variante medida = média plena | **não medido** |
+| **P1** | Publicar checksums LINQS no CI de dados | reprodutibilidade de input | parcial (`checksum_data.py`) |
+| **P2** | Decoder MLP / bilinear completo; SEAL baseline | decoder além do produto interno | **não medido** |
+| **P2** | Adapters PyG/DGL exercitados em teste de integração | ABI comunidade | stub |
+| **P2** | Optuna / W&B sob protocolo *sem* vazar teste | HPO honesto | proposto |
+| **P2** | n_seeds 10–30 no re-run; Holm pré-registrado | validade de conclusão | meta |
+| **P2** | Preencher autores em `CITATION.cff` | citabilidade | placeholder |
+
+O próximo passo ético é o re-run P0, não o *spin* dos números atuais.
+
 
 ## 10. Reprodutibilidade (checklist estilo ACM / Pineau)
 
-Inspirado no checklist de reprodutibilidade em ML (Pineau et al., 2021, JMLR) e nas práticas OGB:
+
+Inspirado no checklist de reprodutibilidade em ML (Pineau et al., 2021, JMLR) e nas práticas OGB. O objetivo desta seção é que um revisor consiga **verificar** o artefato sem retreinar Cora, e **reproduzir** as tabelas se tiver PyTorch + dados LINQS.
+
+### 10.1 Checklist operacional
 
 - [ ] Python ≥ 3.11; `pip install -e ".[dev]"` (ou `requirements-dev.txt`)
-- [ ] `PYTHONPATH=src python3 -m pytest -q`
-- [ ] `PYTHONPATH=src python3 scripts/check_protocol.py`
-- [ ] `PYTHONPATH=src python3 scripts/verify_results.py`
-- [ ] Dados LINQS em `data/` conforme `data/LINQS.md` + checksums
-- [ ] Runners: `run_e1_e4.py`, `run_extended.py`, `run_wave3.py`, `leakage_ladder.py`
-- [ ] Manuscrito: `scripts/build_manuscript.py` → DOCX; `soffice` → PDF
-- [ ] Hiperparâmetros = `TrainConfig` / `ProtocolConfig` (não redefinir à mão)
-- [ ] JSON em `experiments/` versionados; **não** editar médias à mão
-- [ ] Declarar regime `valid`/`leaky`; recusar relatório sem regime
-- [ ] Marcar explicitamente qualquer número pré-correção ES
-- [ ] Seeds e comando de reprodução documentados no README
+- [ ] `PYTHONPATH=src python3 -m pytest -q` (ou `make test`) — skips de torch/fastapi/networkx OK
+- [ ] `PYTHONPATH=src python3 scripts/check_protocol.py` (ou `make protocol`) — invariante no tech tree
+- [ ] `PYTHONPATH=src python3 scripts/verify_results.py` (ou `make verify`) — relê JSON; não treina
+- [ ] `make smoke` / `make audit-stats` / `make quickstart` — exercícios leves documentados no README
+- [ ] Dados LINQS em `data/` conforme `data/LINQS.md` + `scripts/checksum_data.py` (SHA reais se reivindicar re-run)
+- [ ] Runners (só se for re-medir): `run_e1_e4.py`, `run_extended.py`, `run_wave3.py`, `leakage_ladder.py`
+- [ ] Manuscrito: `scripts/build_manuscript.py` → DOCX; `soffice` → PDF (`make manuscript`)
+- [ ] Hiperparâmetros = `TrainConfig` / `ProtocolConfig` / `DEFAULT_TRAIN` (não redefinir à mão nos runners)
+- [ ] JSON em `experiments/` versionados; **não** editar médias à mão; diffs só via runners
+- [ ] Declarar regime `valid`/`leaky`; recusar relatório sem regime; heurísticas no mesmo \(Q\)
+- [ ] Marcar explicitamente qualquer número **[pré-correção ES]**
+- [ ] Seeds e comando de reprodução documentados no README / Apêndice H
+- [ ] SpotTarget = Zhu et al. (WSDM 2024) — zero “Dong et al.” residual para SpotTarget
 
-O artefato expõe `glue_lp.export.list_measured_summaries()` e API opcional `GET /experiments` para reler *headlines* sem retreinar.
+O artefato expõe `glue_lp.export.list_measured_summaries()` e API opcional `GET /experiments` para reler *headlines* sem retreinar. Arquivos `experiments/smoke_*.json` são sintéticos rotulados e **nunca** misturados às tabelas LINQS.
 
----
+### 10.2 Disponibilidade de dados e código
+
+**Código.** Pacote Python `glue_lp` versão **0.5.0**, licença **MIT** (`LICENSE`), código-fonte em `src/glue_lp/`, scripts em `scripts/`, testes em `tests/`, manuscrito fonte em `docs/ARTIGO.md`. O repositório versiona o harness, os JSON medidos, as figuras e o manuscrito — não versiona pesos de redes treinadas.
+
+**Dados — o que está no repositório.** (i) Tech tree sintético gerado por `models.crafting_graph()` (12 nós, 20 arestas) — determinístico, sem download. (ii) JSON em `experiments/*.json` e `RESULTADOS.md` — saídas medidas. (iii) Figuras em `figures/`. (iv) Documentação em `docs/` e `data/LINQS.md` (instruções + contagens esperadas pós-loader).
+
+**Dados — o que se baixa (Planetoid / LINQS).** Cora, Citeseer e Pubmed-Diabetes **não** são redistribuídos neste zip. Os loaders (`data_citation.py` / `data_cora.py`) esperam os arquivos clássicos sob `data/` (ver `data/LINQS.md`):
+
+- Fonte primária: Sen et al. (2008), projeto LINQS (*Collective classification in network data*, *AI Magazine*).
+- Popularização Planetoid: Yang, Cohen & Salakhutdinov (2016, ICML).
+- Contagens após o loader deste repo (já usadas na Seção 6.1 / Apêndice J): Cora 2708 / 5278 / 1433; Citeseer 3312 / 4536 / 3703; Pubmed 19717 / 44324 / 500.
+
+**OGB.** Stub apenas (`integrations/ogb_loader.py`). **OGB não rodou** — nenhum `ogbl-*` foi baixado nem avaliado neste pacote.
+
+**Como citar o software.** Ver `CITATION.cff` (versão 0.5.0; **autores a preencher** — não inventamos nomes). Licença MIT permite uso, cópia, modificação e redistribuição com aviso de copyright.
+
+### 10.3 Conflito de interesses e financiamento
+
+**Conflito de interesses:** não declarado / a preencher pelos autores finais.  
+**Financiamento:** não declarado / a preencher.  
+**Nota:** placeholders honestos — este manuscrito não inventa agências, grants nem afiliações.
+
 
 ## 11. Conclusão
 
-GLUE-LP (*Graph Link-evaluation Under Exclusion*) é um artefato de Design Science cujo valor não está em uma nova camada de *message passing*, e sim em tornar a exclusão da aresta-alvo uma invariante de processo: \(Q^{+} \cap E_{mp} = \emptyset\) no modo válido, com modo leaky explícito como controle, heurísticas no mesmo Q, e escada L1/L3/L4 no laboratório sintético. Em Citeseer o atalho vale cerca de dez pontos (**[pré-correção ES]**); em Pubmed, cerca de três; no GAT de Cora, cerca de nove, com *t* alto; na série 1 de Cora, cerca de doze, com cinco seeds alinhadas; em Cora-GCN com *early stopping*, o efeito é apenas sugestivo (*t* = 2,61). Essa dependência também é resultado.
 
-A contribuição que nos interessa é operacional: se alguém clonar o repositório e rodar só o modo leaky, obterá um número mais bonito e um sistema pior — e o CI pode ficar vermelho quando o assert for ignorado. SpotTarget (Zhu et al., 2024) e HeaRT (Li et al., 2023) diagnosticaram; OGB padronizou *benchmark*; nós empacotamos a recusa do atalho como harness. Os números LINQS deste manuscrito são **[pré-correção ES]**; a escada sintética não. O próximo passo ético é o re-run, não o *spin*.
+GLUE-LP (*Graph Link-evaluation Under Exclusion*) é um artefato de Design Science cujo valor não está em uma nova camada de *message passing*, e sim em tornar a exclusão da aresta-alvo uma invariante de processo: \(Q^{+} \cap E_{mp} = \emptyset\) no modo válido, com modo leaky explícito como controle, heurísticas no mesmo \(Q\), políticas de negativos de primeira classe, e escada L1/L3/L4 no laboratório sintético. Em Citeseer o atalho vale cerca de dez pontos (**[pré-correção ES]**); em Pubmed, cerca de três; no GAT de Cora, cerca de nove, com *t* alto; na série 1 de Cora, cerca de doze, com cinco seeds alinhadas; em Cora-GCN com *early stopping*, o efeito é apenas sugestivo (*t* = 2,61). Essa dependência do critério de parada também é resultado (P2).
 
----
+Três leituras práticas fecham o manuscrito. **(1) Ranking sob negativos:** no uniforme, AA (0.720) ≈ GCN (0.708); no hard-CN, GCN (0.619) > AA (0.542); degree-matched (0.611) alinha-se ao hard — quem publica só o uniforme escolhe o \(Q\) complacente. **(2) Escada sintética:** L4 (meia-aresta, 0.8602 ± 0.0915) pode inflar tanto quanto L3 (0.7789 ± 0.1976); PA sofre Δ(L3−L1) = +0.465, longe de CN/AA — vazamento não é uniforme entre scorers. **(3) Artefato vs fenômeno:** o assert e o CI já operam hoje; as magnitudes LINQS aguardam o re-run P0.
+
+A contribuição que nos interessa é operacional: se alguém clonar o repositório e rodar só o modo leaky, obterá um número mais bonito e um sistema pior — e o CI pode ficar vermelho quando o assert for ignorado. SpotTarget (Zhu et al., WSDM 2024) e HeaRT (Li et al., 2023) diagnosticaram; OGB (Hu et al., 2020) padronizou *benchmark*; nós empacotamos a recusa do atalho como harness MIT versionado (0.5.0), com JSON medidos, figuras 1–9 e manuscrito regenerável. Os números LINQS deste manuscrito são **[pré-correção ES]**; a escada sintética não. OGB não rodou. Autores e financiamento permanecem placeholders. O próximo passo ético é o re-run, não o *spin*.
+
 
 ## Referências
 
@@ -548,6 +734,7 @@ A contribuição que nos interessa é operacional: se alguém clonar o repositó
 8. Lü, L., & Zhou, T. (2011). Link prediction in complex networks: A survey. *Physica A*, 390(6), 1150–1170. arXiv:1010.0725.
 9. Li, J., et al. (2023). Evaluating graph neural networks for link prediction: Current pitfalls and new benchmarking (HeaRT). NeurIPS Datasets & Benchmarks. arXiv:2306.10453.
 10. Zhu, J., Zhou, Y., Ioannidis, V. N., Qian, S., Ai, W., Song, X., & Koutra, D. (2024). Pitfalls in link prediction with graph neural networks: Understanding the impact of target-link inclusion & absence of generalizable insights (SpotTarget). *WSDM '24*. arXiv:2306.00899. DOI:10.1145/3616855.3635786.
+10b. Dong, K., Tian, Y., Guo, Z., Yang, Y., & Chawla, N. V. (2022). FakeEdge: Alleviate dataset shift in link prediction. arXiv:2211.15899. *(Precursor distinto de SpotTarget; não confundir autoria.)*
 11. Hu, W., Fey, M., Zitnik, M., Dong, Y., Ren, H., Liu, B., Catasta, M., & Leskovec, J. (2020). Open Graph Benchmark: Datasets for machine learning on graphs. NeurIPS. arXiv:2005.00687.
 12. Berg, R. van den, Kipf, T. N., & Welling, M. (2017). Graph convolutional matrix completion (GC-MC). arXiv:1706.02263.
 13. Hevner, A. R., March, S. T., Park, J., & Ram, S. (2004). Design science in information systems research. *MIS Quarterly*, 28(1), 75–105.
@@ -598,35 +785,54 @@ Um harness que reivindica "protocolo executável" mas reporta métricas sob crit
 
 ## Apêndice B — Mapa de módulos
 
-| Módulo | Função |
-|---|---|
-| `types` / `config` | domínio, `TrainConfig`, `ProtocolConfig`, L0–L4 |
-| `protocol` / `splits` | máscara, assert, holdout, indutivo, temporal |
-| `torch_gcn` / `torch_models` | GCN denso/esparso, SAGE, GAT, `train_encoder` |
-| `heuristics` / `metrics` / `stats` | CN/AA/PA; AUC/AP/Hits/MRR; *t*, *d_z*, bootstrap, Holm |
-| `export` / `api` | reler JSON; FastAPI opcional |
-| `integrations/*` | stubs PyG/DGL/OGB — **não medidos** |
-| `scripts/run_*.py` | geradores dos JSON |
 
-Ver também `docs/ARQUITETURA.md`.
+Mapa alinhado a `src/glue_lp/` (versão 0.5.0). “Medido” = exercitado por runner/teste que alimenta JSON ou CI; “stub/proposto” = arquivo presente sem evidência medida neste manuscrito.
 
----
+| Módulo | Funções / classes-chave | Papel | Status |
+|---|---|---|---|
+| `types.py` / `config.py` | `TrainConfig`, `ProtocolConfig`, `DatasetSpec`, níveis L0–L4 | domínio tipado; `DEFAULT_TRAIN` | medido |
+| `graph.py` / `rng.py` | `Edge`, `Node`, `edge_key`, Mulberry32 | primitivas + RNG reprodutível | medido |
+| `protocol.py` | `Split`, `assert_no_leakage`, `split_graph`, `leakage_exists` | invariante + split temporal/aleatório sintético | medido |
+| `splits.py` | `random_edge_split`, `inductive_node_split`, `sample_uniform_negatives`, `sample_hard_negatives`, `sample_degree_matched`, `build_adj` | holdout LINQS + negativos | medido |
+| `data_citation.py` / `data_cora.py` | loaders Planetoid/LINQS | Cora/Citeseer/Pubmed a partir de `data/` | medido (séries) |
+| `graph.py` / `models.py` | `crafting_graph`, `embed_gcn`, `embed_gcn`, `embed_gcn_directed_half`, scorers sintéticos | tech tree + escada NumPy | medido (escada) |
+| `torch_gcn.py` | `GCN`, `train_gcn`, `normalize_adj`, `pair_scores` | GCN denso série 1 | medido **[pré-ES]** |
+| `torch_models.py` | `SparseGCN`, `GraphSAGE`, `GAT`, `train_encoder` | série 2 / onda 3 | medido **[pré-ES]** |
+| `heuristics.py` | `scores_cn`, `scores_aa`, `scores_pa` | baselines no mesmo \(Q\) | medido |
+| `metrics.py` / `stats.py` | `roc_auc`, AP, Hits@K, MRR; *t* pareado, *d_z*, bootstrap, Holm | avaliação + estatística | medido (AUC) |
+| `export.py` / `experiments.py` / `cli.py` / `run.py` | summaries, CLI `glue-lp` | releitura sem retreinar | medido |
+| `api.py` | FastAPI somente leitura | opcional | suporte |
+| `graph_analysis.py` | NetworkX opcional | exploratório | proposto |
+| `integrations/pyg_adapter.py` | stub PyG | ABI | stub |
+| `integrations/dgl_note.py` | stub DGL | ABI | stub |
+| `integrations/ogb_loader.py` | stub OGB | Hits@K | **não rodou** |
+| `scripts/run_e1_e4.py` etc. | runners | geradores JSON | medido |
+| `scripts/leakage_ladder.py` | `run_ladder`, `run_exhaustive` | escada L1/L3/L4 | medido (L2 não) |
+| `scripts/build_manuscript.py` | DOCX/PDF | manuscrito | medido (build) |
+
+Ver também `docs/ARQUITETURA.md` e Figura 8.
+
 
 ## Apêndice C — Mapa dos JSON medidos
 
-| Arquivo | Conteúdo |
-|---|---|
-| `cora_e1_e4.json` | série 1 + indutivo + `summary` |
-| `heuristics_rescored.json` | CN/AA/PA com empate=½ (**usar estas**) |
-| `extended_gcn_sage.json` | série 2 + `paired_t_*` |
-| `wave3_gat_pubmed.json` | GAT, degree-matched, Pubmed |
-| `leakage_ladder_resumo.json` | escada L1/L3/L4 + Δ + exaustivo |
-| `leakage_ladder_sintetico.json` | por seed da escada |
-| `exhaustive_sintetico.json` | enumeração por seed |
-| `results_sintetico.json` | ilustrativo n=12 (não estudo principal) |
-| `RESULTADOS.md` | resumo tabular canônico |
 
----
+Fonte canônica tabular: `experiments/RESULTADOS.md`. **Não** editar médias à mão; `scripts/verify_results.py` confere *headlines*.
+
+| Arquivo | Conteúdo | Séries / uso no manuscrito | Nota de integridade |
+|---|---|---|---|
+| `cora_e1_e4.json` | série 1 GCN denso + indutivo + `summary` | §7.1, Ap. H.1 | **[pré-correção ES]** |
+| `heuristics_rescored.json` | CN/AA/PA com empate=½ | §7.1, H3 | **usar estas** (não a AUC “ingênua” do bruto) |
+| `extended_gcn_sage.json` | série 2 GCN/SAGE + `paired_t_*` | §7.2, Ap. H.2–H.3 | **[pré-correção ES]**; SAGE 0,577 pré-normalize |
+| `wave3_gat_pubmed.json` | GAT, degree-matched, Pubmed | §7.3, Ap. H.4–H.5 | **[pré-correção ES]** |
+| `leakage_ladder_resumo.json` | L1/L3/L4 + Δ por scorer | §7.4, Fig. 9 | **independente do ES** |
+| `leakage_ladder_sintetico.json` | por seed da escada | transparência | idem |
+| `exhaustive_sintetico.json` | enumeração \(\binom{12}{2}\) por seed | §7.4 tabela exaustiva | idem |
+| `results_sintetico.json` | ilustrativo n=12 | não estudo principal | não misturar com LINQS |
+| `smoke_*.json` | saídas de `make smoke` | CI / sanity | **nunca** tabelas do paper |
+| `RESULTADOS.md` | resumo tabular canônico | leitura humana | espelho dos JSON |
+
+Campos típicos por célula: `auc_mean`, `auc_sd`, vetores por seed, `paired_t` quando aplicável. A escada expõe `delta_*_auc_L3_menos_L1` (PA 0.4648, AA 0.1992, CN 0.1641, GNN 0.0656).
+
 
 ## Apêndice D — Design Science operacional (Peffers + Hevner)
 
@@ -679,21 +885,34 @@ Sejam \(G=(V,E)\), \(E_{mp}\subseteq E\), \(Q^{+}\) positivos de avaliação, \(
 
 ## Apêndice F — Glossário
 
+
+Definições operacionais neste pacote (alinhadas a `docs/GLOSSARIO.md`).
+
 | Termo | Definição operacional neste pacote |
 |---|---|
-| \(E_{mp}\) | Arestas visíveis ao *message passing* |
-| \(Q^{+}\) / \(Q^{-}\) | Positivos / negativos de avaliação |
-| valid | \(Q^{+}\cap E_{mp}=\emptyset\) (assert) |
-| leaky | positivos (e tipicamente val/test) em \(E_{mp}\) |
-| L1 / L3 / L4 | escada: treino / +positivos / +meia-aresta |
-| L2 | treino∪val — não medido |
-| MW-AUC | Mann–Whitney, empate=½ |
-| hard-CN | negativos de alto *common neighbors* |
-| degree-matched | \(|\deg(w)-\deg(v)|\le 2\) |
-| pré-correção ES | medido antes do early stopping simétrico |
-| GLUE-LP | *Graph Link-evaluation Under Exclusion* (≠ GLUE PLN) |
+| \(E_{mp}\) | Arestas visíveis ao *message passing* (argumento de `train_*` / `embed_gcn`) |
+| \(Q^{+}\) / \(Q^{-}\) | Positivos / negativos de avaliação; \(Q = Q^{+} \cup Q^{-}\) |
+| valid | Modo com \(Q^{+} \cap E_{mp} = \emptyset\); `assert_no_leakage` ativo |
+| leaky | Controle: positivos (e tipicamente val/test) entram em \(E_{mp}\); nunca *headline* |
+| L0 | Emp vazio / ablação extrema — proposto / não medido na escada JSON |
+| L1 | Emp = arestas de treino apenas |
+| L2 | Emp = treino ∪ validação — **não medido** na escada JSON |
+| L3 | Emp = treino ∪ positivos de avaliação (vazamento pleno do alvo) |
+| L4 | Meia-aresta: injeta só uma direção \(u\to v\) no encoder (`embed_gcn_directed_half`) |
+| MW-AUC | AUC Mann–Whitney; empate contado como \(\tfrac{1}{2}\) (`metrics.roc_auc`) |
+| hard-CN | Negativos de alto *common neighbors* (`sample_hard_negatives`) |
+| degree-matched | \(\lvert\deg(w)-\deg(v)\rvert \le 2\) (`sample_degree_matched`) |
+| uniforme 1:1 | Um negativo aleatório por positivo entre não-arestas |
+| pré-correção ES | Medido antes do early stopping simétrico em `train_encoder` |
+| pós-normalize | Estado do SAGE após `F.normalize` L2 — re-AUC **não medida** |
+| GLUE-LP | *Graph Link-evaluation Under Exclusion* (≠ GLUE PLN, Wang et al. 2018) |
+| SpotTarget | Zhu et al., WSDM 2024 — **não** Dong et al. (FakeEdge é outro paper) |
+| HeaRT | Li et al., 2023 — *benchmark*/negativos duros; distinto do nosso harness |
+| Planetoid / LINQS | Cora, Citeseer, Pubmed (Sen et al. 2008; Yang et al. 2016) |
+| tech tree | Grafo sintético de *crafting* (12 nós, 20 arestas) para escada e temporal |
+| harness | Pipeline executável que gera JSON sob assert + mesmo \(Q\) |
+| Design Science | Avaliação do artefato (Hevner/Peffers) ≠ só Δ do fenômeno |
 
----
 
 ## Apêndice G — Detalhamento adicional do desenho experimental
 
@@ -773,6 +992,65 @@ Não comparamos com SOTA 2024–2026 em OGB. Não afinamos hidden/lr com Optuna.
 | 0 | 0.8849 | 0.9107 | +0.0257 |
 | 1 | 0.8848 | 0.9250 | +0.0402 |
 | 2 | 0.8894 | 0.9270 | +0.0376 |
+
+---
+
+
+---
+
+## Apêndice I — Checklist de submissão (condensado)
+
+Condensado de `docs/CHECKLIST_SUBMISSAO.md`. Marque só o que for verdadeiro **agora**. Regra de ouro: não inventar AUC/*t*/Δ; não promover OGB ou SAGE pós-normalize sem JSON novo; SpotTarget = Zhu et al.
+
+### I.1 Identidade e citações
+- [ ] SpotTarget = **Zhu et al.** (WSDM 2024) em PDF/ARTIGO/RELATED_WORK — zero “Dong et al.” residual para SpotTarget
+- [ ] HeaRT = Li et al.; OGB = Hu et al.; Planetoid/LINQS = Sen / Yang
+- [ ] Abstract **não** apresenta modo leaky como *headline*
+- [ ] H1 em Cora+ES: linguagem **sugestiva**; H2/P-PA só sintético até re-medir LINQS
+- [ ] Design Science: artefato (assert) separado de fenômeno (Δ)
+
+### I.2 Autores e software
+- [ ] `CITATION.cff` com autores reais antes da versão pública (**não inventar**)
+- [ ] `version` 0.5.0 alinhada a `pyproject.toml`
+- [ ] LICENSE MIT coerente com o PDF
+
+### I.3 Gate P0 (early stopping)
+- [ ] Opção 1: re-run completo (`ROTEIRO_REEXECUCAO.md`) **ou** Opção 2: banner exploratório em **todas** as tabelas LINQS
+- [ ] SAGE 0,577 não como veredito pós-`F.normalize`
+- [ ] Escada L1/L3/L4 citada como **[MEDIDO]** e independente do ES
+
+### I.4 Escopo negativo
+- [ ] OGB: apenas “não medido / não executado”
+- [ ] L0/L2: propostos / não medidos na escada JSON
+- [ ] `smoke_*.json` fora das tabelas LINQS
+
+### I.5 Reprodutibilidade mínima
+- [ ] `make test` · `make protocol` · `make verify` verdes
+- [ ] PDF/DOCX regenerados após mudanças textuais; fig1–fig9 legendadas
+- [ ] Heurísticas no mesmo \(Q\); assert no modo valid; `CHANGELOG` atualizado
+
+### I.6 Ética de reporte
+- [ ] Nenhuma tabela promove leaky sem o par valid
+- [ ] Seed que inverte mencionada (Cora série 2, seed 4)
+- [ ] Diffs de JSON só via runners
+
+Quando o checklist estiver marcado sob as premissas documentadas, o pacote está **elegível** a submissão — não “provado SOTA”.
+
+---
+
+## Apêndice J — Tabela de corpus (Planetoid / LINQS)
+
+Contagens **após o loader** deste repositório (`data_citation` / `data_cora`), alinhadas a `data/LINQS.md` e à Seção 6.1. Fonte: Sen et al. (2008, LINQS); popularização Planetoid (Yang et al., 2016). Os arquivos brutos **não** estão no zip — apenas as instruções de path.
+
+| Corpus | Nós (\(n\)) | Arestas não dirigidas | Features | Papel neste pacote | Timestamp de aresta |
+|---|---:|---:|---:|---|---|
+| Cora | 2708 | 5278 | 1433 | séries 1–2, onda 3, indutivo | não (LINQS) |
+| Citeseer | 3312 | 4536 (órfãs fora) | 3703 | série 2 | não |
+| Pubmed-Diabetes | 19717 | 44324 | 500 | onda 3 (3 seeds) | não |
+| Tech tree (sintético) | 12 | 20 | — | escada L + exaustivo + temporal | sim (sintético) |
+
+Paths esperados sob `data/` (ver `data/LINQS.md`): `cora/cora.content` + `cora.cites`; `citeseer/citeseer.content` + `citeseer.cites`; `Pubmed-Diabetes/data/Pubmed-Diabetes.NODE.paper.tab` + `…DIRECTED.cites.tab`. Checksums: `scripts/checksum_data.py` (quando os arquivos locais existirem). **OGB / ogbl-*:** não listados — **não rodaram**.
+
 
 ---
 
